@@ -386,6 +386,7 @@ h1,h2{letter-spacing:-0.02em}
 </div>
 </sc-if>
 <sc-if value="{{ hasPlans }}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-wrap: wrap; gap: 6px;"><sc-for list="{{ kindChips }}" as="kc" hint-placeholder-count="3"><button type="button" onClick="{{ kc.pick }}" style="min-height: 40px; padding: 0 14px; border-radius: 12px; border: 1px solid rgba(148,163,209,0.35); background: {{ kc.bg }}; color: {{ kc.fg }}; font-size: 13px; font-weight: 700; cursor: pointer;">{{ kc.label }}</button></sc-for></div>
 <div style="display: flex; flex-wrap: nowrap; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin: 0 -20px; padding-left: 20px; padding-right: 20px; scrollbar-width: none; -webkit-overflow-scrolling: touch;">
 <sc-for list="{{ viewChips }}" as="k" hint-placeholder-count="3">
 <button type="button" onClick="{{ k.pick }}" style="flex-shrink: 0; white-space: nowrap; min-height: 40px; padding: 0 12px; border-radius: 999px; border: 1px solid {{ k.border }}; background: {{ k.bg }}; color: {{ k.fg }}; font-size: 13px; font-weight: 600; cursor: pointer;">{{ k.label }}</button>
@@ -422,9 +423,11 @@ h1,h2{letter-spacing:-0.02em}
 </sc-for>
 </div>
 </div>
-<div style="padding: 16px; border: 1px solid rgba(148,163,209,0.18); border-radius: 14px; background: rgba(255,255,255,0.05); display: flex; flex-direction: column; gap: 8px;">
 <div style="font-size: 13px; font-weight: 600; letter-spacing: 0.1em; color: #AEB9D4;">{{ selLabel }}</div>
-<sc-for list="{{ dayList }}" as="e" hint-placeholder-count="2">
+<sc-for list="{{ dayGroups }}" as="g" hint-placeholder-count="2">
+<div style="padding: 16px; border: 1px solid rgba(148,163,209,0.18); border-radius: 14px; background: rgba(255,255,255,0.05); display: flex; flex-direction: column; gap: 8px;">
+<div style="font-size: 13px; font-weight: 700; letter-spacing: 0.08em; color: #67E8F9;">{{ g.title }}</div>
+<sc-for list="{{ g.list }}" as="e" hint-placeholder-count="2">
 <div style="display: flex; flex-direction: column; gap: 8px; padding: 10px 0; border-top: 1px solid rgba(148,163,209,0.12);">
 <div style="display: flex; align-items: flex-start; gap: 10px;">
 <span style="width: 12px; height: 12px; margin-top: 4px; border-radius: 999px; flex-shrink: 0; background: {{ e.color }};"></span>
@@ -459,8 +462,9 @@ h1,h2{letter-spacing:-0.02em}
 </sc-if>
 </div>
 </sc-for>
-<sc-if value="{{ dayEmpty }}" hint-placeholder-val="{{ false }}"><div style="font-size: 14px; color: #AEB9D4;">Nothing scheduled this day.</div></sc-if>
+<sc-if value="{{ g.empty }}" hint-placeholder-val="{{ false }}"><div style="font-size: 14px; color: #AEB9D4;">{{ g.emptyTxt }}</div></sc-if>
 </div>
+</sc-for>
 </sc-if>
 </div>
 </sc-if>
@@ -858,16 +862,24 @@ h1,h2{letter-spacing:-0.02em}
 <div style="display: flex; flex-direction: column; gap: 14px;">
 <sc-if value="{{ listMode }}" hint-placeholder-val="{{ true }}">
 <div style="font-size: 15px; font-weight: 600;">My plans ({{ planCount }} of {{ maxPlans }}) · <span style="font-weight: 400; color: #AEB9D4;">{{ dashSummary }}</span></div>
-<sc-for list="{{ listCards }}" as="lc" hint-placeholder-count="3">
+<sc-for list="{{ listGroups }}" as="lg2" hint-placeholder-count="2">
+<div style="padding: 12px; border: 1px solid rgba(148,163,209,0.22); border-radius: 16px; background: rgba(255,255,255,0.025); display: flex; flex-direction: column; gap: 10px;">
+<div style="font-size: 13px; font-weight: 700; letter-spacing: 0.08em; color: #67E8F9;">{{ lg2.title }}</div>
+<sc-if value="{{ lg2.empty }}" hint-placeholder-val="{{ false }}"><div style="font-size: 13px; color: #AEB9D4;">{{ lg2.emptyTxt }}</div></sc-if>
+<sc-for list="{{ lg2.cards }}" as="lc" hint-placeholder-count="3">
 <button type="button" onClick="{{ lc.open }}" aria-label="Open {{ lc.name }}" style="text-align: left; padding: 14px 16px; border: 1px solid rgba(148,163,209,0.18); border-radius: 14px; background: rgba(255,255,255,0.05); color: #E6EEFF; display: flex; flex-direction: column; gap: 6px; cursor: pointer; font-family: inherit;">
 <span style="display: flex; align-items: center; gap: 8px; width: 100%;"><span style="width: 14px; height: 14px; border-radius: 999px; flex-shrink: 0; background: {{ lc.color }};"></span><span style="flex: 1 1 auto; min-width: 0; font-size: 17px; font-weight: 600;">{{ lc.name }}</span><span style="flex-shrink: 0; font-size: 13px; font-weight: 700; padding: 4px 9px; border-radius: 999px; background: rgba(129,140,248,0.16); color: #E6EEFF;">{{ lc.status }}</span></span>
 <span style="font-size: 14px; color: #D3DBEE;">{{ lc.line }}</span>
 <span style="font-size: 13px; color: #AEB9D4;">{{ lc.stats }}</span>
+<sc-if value="{{ lc.cyc }}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; font-weight: 600; color: #FCD34D;">{{ lc.cyc }}</span></sc-if>
+<sc-if value="{{ lc.cwarn }}" hint-placeholder-val="{{ false }}"><span role="alert" style="font-size: 13px; font-weight: 700; color: #F87171;">&#9888; {{ lc.cwarn }}</span></sc-if>
 <sc-if value="{{ lc.nextChg }}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; font-weight: 600; color: #67E8F9;">&#8594; {{ lc.nextChg }}</span></sc-if>
 <sc-if value="{{ lc.routeWarn }}" hint-placeholder-val="{{ false }}"><span style="align-self: flex-start; font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: rgba(251,191,36,0.16); color: #FCD34D;">{{ lc.routeWarn }}</span></sc-if>
 <sc-if value="{{ lc.warn }}" hint-placeholder-val="{{ false }}"><span style="align-self: flex-start; font-size: 13px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: rgba(251,191,36,0.16); color: #FCD34D;">{{ lc.warn }}</span></sc-if>
 <span style="font-size: 13px; font-weight: 600; color: #22D3EE;">Open plan &#8250;</span>
 </button>
+</sc-for>
+</div>
 </sc-for>
 <div style="font-size: 13px; line-height: 1.5; color: #AEB9D4;">"Taken" counts only doses you marked Done.</div>
 <sc-if value="{{ hasStopped }}" hint-placeholder-val="{{ false }}">
@@ -913,6 +925,12 @@ h1,h2{letter-spacing:-0.02em}
 <sc-if value="{{ p.hasReport }}" hint-placeholder-val="{{ false }}"><a href="{{ p.report }}" target="_blank" rel="noopener" style="font-size: 13px; font-weight: 600; color: #67E8F9;">{{ p.reportLabel }}</a></sc-if>
 </div>
 <div style="padding: 12px 14px; border-radius: 12px; background: rgba(255,255,255,0.04); display: flex; flex-direction: column; gap: 5px;">
+<div style="font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: #AEB9D4;">CYCLE DATES · ON AND OFF (RECOVERY)</div>
+<sc-for list="{{ p.cycRows }}" as="cyr" hint-placeholder-count="2"><div style="display: flex; flex-direction: column; gap: 1px; padding: 4px 0; border-top: 1px solid rgba(148,163,209,0.10); font-size: 13px; line-height: 1.4;"><span style="font-weight: 700; color: {{ cyr.col }};">{{ cyr.k }}</span><span style="color: #E6EEFF; font-weight: {{ cyr.fw }};">{{ cyr.v }}</span></div></sc-for>
+<sc-for list="{{ p.cycWarn }}" as="cw" hint-placeholder-count="1"><div role="alert" style="font-size: 13px; font-weight: 700; line-height: 1.45; color: #F87171;">&#9888; {{ cw.t }}</div></sc-for>
+<div style="font-size: 12px; line-height: 1.45; color: #8E9AB8;">{{ p.cycNote }}</div>
+</div>
+<div style="padding: 12px 14px; border-radius: 12px; background: rgba(255,255,255,0.04); display: flex; flex-direction: column; gap: 5px;">
 <div style="font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: #AEB9D4;">{{ p.courseTitle }}</div>
 <sc-for list="{{ p.courseRows }}" as="cr" hint-placeholder-count="4"><div style="display: flex; gap: 8px; justify-content: space-between; font-size: 13px; line-height: 1.45;"><span style="color: #AEB9D4; flex-shrink: 0;">{{ cr.k }}</span><span style="color: #E6EEFF; text-align: right;">{{ cr.v }}</span></div></sc-for>
 <sc-if value="{{ p.hasSegs }}" hint-placeholder-val="{{ true }}">
@@ -949,10 +967,11 @@ h1,h2{letter-spacing:-0.02em}
 <div style="padding: 16px; border: 2px solid #F87171; border-radius: 14px; background: rgba(255,255,255,0.05); display: flex; flex-direction: column; gap: 12px;">
 <div style="font-size: 16px; font-weight: 600;">Stop {{ p.name }}</div>
 <div style="font-size: 13px; line-height: 1.5; color: #B4C0DA;">Nothing is scheduled after the stop date. Everything you already marked stays, and the plan moves to Stopped plans with a summary of how long you took it and how much.</div>
-<div style="display: flex; flex-direction: column; gap: 6px;"><label for="stopDate" style="font-size: 13px; font-weight: 600; color: #B4C0DA;">Last day of this plan</label><input id="stopDate" type="date" min="{{ p.stopMin }}" value="{{ p.stopDate }}" onChange="{{ p.onStopDate }}" style="height: 46px; box-sizing: border-box; padding: 0 12px; font-size: 16px; font-family: inherit; border: 1px solid rgba(148,163,209,0.35); border-radius: 12px; background: rgba(255,255,255,0.05); color: #E6EEFF;"></div>
+<div style="display: flex; flex-direction: column; gap: 6px;"><label for="stopDate" style="font-size: 13px; font-weight: 600; color: #B4C0DA;">Stop date (a dose on this day stays only if you marked it taken)</label><input id="stopDate" type="date" min="{{ p.stopMin }}" value="{{ p.stopDate }}" onChange="{{ p.onStopDate }}" style="height: 46px; box-sizing: border-box; padding: 0 12px; font-size: 16px; font-family: inherit; border: 1px solid rgba(148,163,209,0.35); border-radius: 12px; background: rgba(255,255,255,0.05); color: #E6EEFF;"></div>
 <div style="font-size: 13px; font-weight: 600; color: #B4C0DA;">Reason (optional)</div>
 <div style="display: flex; flex-wrap: wrap; gap: 6px;"><sc-for list="{{ p.reasonChips }}" as="rc" hint-placeholder-count="5"><button type="button" onClick="{{ rc.pick }}" style="min-height: 40px; padding: 0 12px; border-radius: 999px; border: 1px solid rgba(148,163,209,0.35); font-size: 13px; font-weight: 600; cursor: pointer; background: {{ rc.bg }}; color: {{ rc.fg }};">{{ rc.label }}</button></sc-for></div>
 <input id="stopReason" type="text" autocomplete="off" aria-label="Reason in your own words" placeholder="Or type your own reason" value="{{ p.stopReason }}" onChange="{{ p.onStopReason }}" style="height: 46px; box-sizing: border-box; padding: 0 12px; font-size: 16px; font-family: inherit; border: 1px solid rgba(148,163,209,0.35); border-radius: 12px; background: rgba(255,255,255,0.05); color: #E6EEFF;">
+<div style="display: flex; flex-direction: column; gap: 6px;"><label for="stopOff" style="font-size: 13px; font-weight: 600; color: #B4C0DA;">Time off before the next course (weeks, optional)</label><input id="stopOff" type="number" inputmode="numeric" min="0" value="{{ p.stopOff }}" onChange="{{ p.onStopOff }}" placeholder="e.g. 4" style="width: 120px; height: 46px; box-sizing: border-box; padding: 0 12px; font-size: 16px; font-family: inherit; border: 1px solid rgba(148,163,209,0.35); border-radius: 12px; background: rgba(255,255,255,0.05); color: #E6EEFF;"><div style="font-size: 12px; line-height: 1.45; color: #8E9AB8;">Used for the recovery dates and the "starts too soon" warning on your next course. Your own number.</div></div>
 <div style="font-size: 13px; line-height: 1.45; color: #FCD34D;">{{ p.stopNote }}</div>
 <sc-if value="{{ p.hasStopErr }}" hint-placeholder-val="{{ false }}"><div role="alert" style="font-size: 13px; font-weight: 600; color: #F87171;">{{ p.stopErr }}</div></sc-if>
 <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;">
@@ -1176,6 +1195,13 @@ h1,h2{letter-spacing:-0.02em}
 </div>
 <div style="display: flex; flex-wrap: wrap; gap: 6px;"><sc-for list="{{ cycleChips }}" as="cy" hint-placeholder-count="5"><button type="button" onClick="{{ cy.pick }}" style="min-height: 40px; padding: 0 12px; border-radius: 999px; border: 1px solid rgba(148,163,209,0.35); font-size: 13px; font-weight: 600; cursor: pointer; background: {{ cy.bg }}; color: {{ cy.fg }};">{{ cy.label }}</button></sc-for></div>
 <div style="font-size: 13px; line-height: 1.5; color: #B4C0DA;">{{ cycleNote }}</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;">
+<div style="display: flex; flex-direction: column; gap: 6px;"><label for="fOffAfter" style="font-size: 13px; font-weight: 600; color: #B4C0DA;">Time off after this plan (weeks)</label><input id="fOffAfter" type="number" inputmode="numeric" min="0" value="{{ f.offAfter }}" onChange="{{ onFOffAfter }}" placeholder="optional" style="width: 90px; height: 46px; box-sizing: border-box; padding: 0 12px; font-size: 16px; font-family: inherit; border: 1px solid rgba(148,163,209,0.35); border-radius: 12px; background: rgba(255,255,255,0.05); color: #E6EEFF;"></div>
+<div style="display: flex; flex-direction: column; gap: 6px;"><label for="fMaxOn" style="font-size: 13px; font-weight: 600; color: #B4C0DA;">Warn me if on longer than (weeks)</label><input id="fMaxOn" type="number" inputmode="numeric" min="0" value="{{ f.maxOn }}" onChange="{{ onFMaxOn }}" placeholder="optional" style="width: 90px; height: 46px; box-sizing: border-box; padding: 0 12px; font-size: 16px; font-family: inherit; border: 1px solid rgba(148,163,209,0.35); border-radius: 12px; background: rgba(255,255,255,0.05); color: #E6EEFF;"></div>
+</div>
+<div style="font-size: 12px; line-height: 1.45; color: #8E9AB8;">Your own numbers (from your prescriber or protocol). Ascendose does not know a safe limit for any compound. With a cycle set, its off weeks are the recovery.</div>
+<sc-for list="{{ fCycRows }}" as="cyr" hint-placeholder-count="2"><div style="font-size: 13px; line-height: 1.4;"><span style="font-weight: 700; color: {{ cyr.col }};">{{ cyr.k }}: </span><span style="color: #E6EEFF;">{{ cyr.v }}</span></div></sc-for>
+<sc-for list="{{ fCycWarn }}" as="cw" hint-placeholder-count="1"><div role="alert" style="font-size: 13px; font-weight: 700; line-height: 1.45; color: #F87171;">&#9888; {{ cw.t }}</div></sc-for>
 </sc-if>
 </sc-if>
 </div>
@@ -1392,6 +1418,13 @@ h1,h2{letter-spacing:-0.02em}
 </div>
 <div style="display: flex; flex-wrap: wrap; gap: 6px;"><sc-for list="{{ cycleChips }}" as="cy" hint-placeholder-count="5"><button type="button" onClick="{{ cy.pick }}" style="min-height: 40px; padding: 0 12px; border-radius: 999px; border: 1px solid rgba(148,163,209,0.35); font-size: 13px; font-weight: 600; cursor: pointer; background: {{ cy.bg }}; color: {{ cy.fg }};">{{ cy.label }}</button></sc-for></div>
 <div style="font-size: 13px; line-height: 1.5; color: #B4C0DA;">{{ cycleNote }}</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;">
+<div style="display: flex; flex-direction: column; gap: 6px;"><label for="fOffAfter" style="font-size: 13px; font-weight: 600; color: #B4C0DA;">Time off after this plan (weeks)</label><input id="fOffAfter" type="number" inputmode="numeric" min="0" value="{{ f.offAfter }}" onChange="{{ onFOffAfter }}" placeholder="optional" style="width: 90px; height: 46px; box-sizing: border-box; padding: 0 12px; font-size: 16px; font-family: inherit; border: 1px solid rgba(148,163,209,0.35); border-radius: 12px; background: rgba(255,255,255,0.05); color: #E6EEFF;"></div>
+<div style="display: flex; flex-direction: column; gap: 6px;"><label for="fMaxOn" style="font-size: 13px; font-weight: 600; color: #B4C0DA;">Warn me if on longer than (weeks)</label><input id="fMaxOn" type="number" inputmode="numeric" min="0" value="{{ f.maxOn }}" onChange="{{ onFMaxOn }}" placeholder="optional" style="width: 90px; height: 46px; box-sizing: border-box; padding: 0 12px; font-size: 16px; font-family: inherit; border: 1px solid rgba(148,163,209,0.35); border-radius: 12px; background: rgba(255,255,255,0.05); color: #E6EEFF;"></div>
+</div>
+<div style="font-size: 12px; line-height: 1.45; color: #8E9AB8;">Your own numbers (from your prescriber or protocol). Ascendose does not know a safe limit for any compound. With a cycle set, its off weeks are the recovery.</div>
+<sc-for list="{{ fCycRows }}" as="cyr" hint-placeholder-count="2"><div style="font-size: 13px; line-height: 1.4;"><span style="font-weight: 700; color: {{ cyr.col }};">{{ cyr.k }}: </span><span style="color: #E6EEFF;">{{ cyr.v }}</span></div></sc-for>
+<sc-for list="{{ fCycWarn }}" as="cw" hint-placeholder-count="1"><div role="alert" style="font-size: 13px; font-weight: 700; line-height: 1.45; color: #F87171;">&#9888; {{ cw.t }}</div></sc-for>
 </sc-if>
 </sc-if>
 </div>
@@ -2250,7 +2283,7 @@ class Component extends window.DCLogic {
         hasSyringe: !!c.units, sy: syr(c.units || 0, c.units ? c.units + ' units' : ''), fillW: fw, plungerX: 20 + fw - 2, unitsLabel: c.units ? c.units + ' units' : '', syringeNote: c.syringeNote || '',
         open: function () { self.setState({ tab: 'detail', sel: i }); },
         toCalc: function () { self.setState({ tab: 'calc' }); },
-        toCal: function () { var rt = c.route === 'IM' ? 'IM' : c.route === 'PO' ? 'PO' : 'SC'; self.setState({ tab: 'prof', ptab: 'plans', planPage: null, chg: null, cu: null, sup: null, form: { name: c.name, route: rt, syringe: rt === 'PO' ? 'none' : rt === 'IM' ? 'ml3' : (c.device === 'pen' ? 'pen' : 'insulin'), drawNeedle: rt === 'IM' ? '18G' : '', injectNeedle: '', dose: '', unit: 'mg', vial: '', water: '', titrate: !!(c.steps && c.steps.length), freq: c.freq === 'daily' ? 'daily' : 'weekly', n: '2', perDay: 1, cycleOn: '', cycleOff: '', days: [], start: (function(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()<9?'0':'')+(d.getMonth()+1)+'-'+(d.getDate()<10?'0':'')+d.getDate();})(), weeks: '16', sites: [] }, formError: '' }); }
+        toCal: function () { var rt = c.route === 'IM' ? 'IM' : c.route === 'PO' ? 'PO' : 'SC'; self.setState({ tab: 'prof', ptab: 'plans', planPage: null, chg: null, cu: null, sup: null, form: { name: c.name, route: rt, syringe: rt === 'PO' ? 'none' : rt === 'IM' ? 'ml3' : (c.device === 'pen' ? 'pen' : 'insulin'), drawNeedle: rt === 'IM' ? '18G' : '', injectNeedle: '', dose: '', unit: 'mg', vial: '', water: '', titrate: !!(c.steps && c.steps.length), freq: c.freq === 'daily' ? 'daily' : 'weekly', n: '2', perDay: 1, cycleOn: '', cycleOff: '', offAfter: '', maxOn: '', days: [], start: (function(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()<9?'0':'')+(d.getMonth()+1)+'-'+(d.getDate()<10?'0':'')+d.getDate();})(), weeks: '16', sites: [] }, formError: '' }); }
       };
     });
     var q = (s.q || '').toLowerCase().trim();    var suggest = q.length >= 3 ? all.filter(function (c) {
@@ -2472,12 +2505,77 @@ class Component extends window.DCLogic {
           list.push({ route: p.route || 'SC', syr: syrType(p), ml: cc && mg ? mg / cc : 0, k: k, per: per, n: n, week: wk, key: key, dose: doseLabel(p, e, wk), mg: mg, units: u, site: isPO(p) ? '' : 'Site not set', conc: concOf(e), vial: e.vial });
           n++;
         }
+        if (p.stop && key === p.stop) { var dn0 = s.done || {}; list = list.filter(function (x) { return dn0[p.id + '|' + key + '|' + x.k]; }); if (!list.length) continue; }
         out[key] = list;
       }
       return out;
     };
     var plans = s.plans || [];
     var S = plans.map(function (p) { return sched(p); });
+    var cyAdd = function (d, n) { var x = new Date(d); x.setDate(x.getDate() + n); return x; };
+    var cyShort = function (d) { return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }); };
+    var cyLen = function (a, b) { var dd = Math.round((b - a) / 86400000) + 1; return dd % 7 === 0 ? (dd / 7) + ' wk' : dd + ' day' + (dd === 1 ? '' : 's'); };
+    var cyNorm = function (n) { return String(n || '').trim().toLowerCase(); };
+    // on / off (recovery) blocks for a plan or a form: {start, weeks, freq, cycleOn, cycleOff, offAfter, stop}
+    var cycleOf = function (p) {
+      var sd = parseKey(p.start), out = { blocks: [], lastOn: null, recEnd: null, hasCycle: false };
+      if (!sd) return out;
+      var W = p.freq === 'once' ? 1 : Math.max(1, Math.round(+p.weeks || 1)), on = +p.cycleOn || 0, off = +p.cycleOff || 0, aft = +p.offAfter || 0, stopD = p.stop ? parseKey(p.stop) : null, B = [];
+      out.hasCycle = on > 0 && off > 0;
+      if (out.hasCycle) {
+        for (var w = 0, c = 1; w < W; w += on + off, c++) {
+          B.push({ on: true, n: c, a: cyAdd(sd, w * 7), b: cyAdd(sd, Math.min(w + on, W) * 7 - 1) });
+          var oa = Math.min(w + on, W); B.push({ on: false, n: c, a: cyAdd(sd, oa * 7), b: cyAdd(sd, (oa + off) * 7 - 1), after: oa + off > W });
+        }
+      } else {
+        B.push({ on: true, n: 1, a: sd, b: cyAdd(sd, W * 7 - 1) });
+        if (aft > 0) B.push({ on: false, n: 1, a: cyAdd(sd, W * 7), b: cyAdd(sd, W * 7 + aft * 7 - 1), after: true });
+      }
+      if (stopD) {
+        var B2 = [], rw = off || aft;
+        for (var j = 0; j < B.length; j++) {
+          var bk = B[j]; if (bk.a > stopD) break;
+          if (bk.on && bk.b >= stopD) { B2.push({ on: true, n: bk.n, a: bk.a, b: stopD, cut: true }); if (rw > 0) B2.push({ on: false, n: bk.n, a: cyAdd(stopD, 1), b: cyAdd(stopD, rw * 7), after: true }); break; }
+          B2.push(bk);
+        }
+        B = B2;
+      }
+      out.blocks = B;
+      B.forEach(function (bk) { if (bk.on) out.lastOn = bk.b; });
+      if (B.length && !B[B.length - 1].on) out.recEnd = B[B.length - 1].b;
+      return out;
+    };
+    var cycWarns = function (q, selfId) {
+      var Wn = [], C = cycleOf(q), mx = parseInt(q.maxOn, 10) || 0;
+      if (mx > 0) C.blocks.forEach(function (bk) { if (bk.on && Math.round((bk.b - bk.a) / 86400000) + 1 > mx * 7) Wn.push((C.hasCycle ? 'Cycle ' + bk.n : 'This plan') + ' is ' + cyLen(bk.a, bk.b) + ' on. That is longer than your limit of ' + mx + ' week' + (mx === 1 ? '' : 's') + '.'); });
+      var nm = cyNorm(q.name), sd = parseKey(q.start);
+      if (nm && sd) plans.forEach(function (o) {
+        if (o.id === selfId || cyNorm(o.name) !== nm) return;
+        var os = parseKey(o.start); if (!os || os > sd) return;
+        var OC = cycleOf(o); if (!OC.lastOn) return;
+        if (sd <= OC.lastOn) Wn.push('Overlaps your other ' + o.name + ' plan: that one is on until ' + cyShort(OC.lastOn) + '.');
+        else if (OC.recEnd && sd <= OC.recEnd) { var dd = Math.round((OC.recEnd - sd) / 86400000) + 1; Wn.push('Starts too soon: your time off after the last ' + o.name + ' course runs until ' + cyShort(OC.recEnd) + '. This start is ' + dd + ' day' + (dd === 1 ? '' : 's') + ' early.'); }
+      });
+      return Wn;
+    };
+    var cycRowsOf = function (p) {
+      var C = cycleOf(p), tdy = parseKey(todayKey);
+      return C.blocks.map(function (bk) {
+        var now = tdy >= bk.a && tdy <= bk.b;
+        return { k: bk.on ? (C.hasCycle ? 'Cycle ' + bk.n + ' · ON' : 'ON') + (bk.cut ? ' (stopped)' : '') : (bk.after ? 'Recovery (off) after' : 'Off · recovery'), v: cyShort(bk.a) + ' → ' + cyShort(bk.b) + ' · ' + cyLen(bk.a, bk.b) + (now ? '  ← now' : ''), col: bk.on ? '#67E8F9' : '#FCD34D', fw: now ? '700' : '400' };
+      });
+    };
+    var cycNowTxt = function (p) {
+      var C = cycleOf(p), tdy = parseKey(todayKey), cur = null, nx = null;
+      C.blocks.forEach(function (bk) { if (tdy >= bk.a && tdy <= bk.b) cur = bk; else if (!nx && bk.a > tdy) nx = bk; });
+      if (cur && cur.on) return 'ON until ' + cyShort(cur.b) + (nx && !nx.on ? ' · Off ' + cyShort(nx.a) + ' → ' + cyShort(nx.b) : '');
+      if (cur) return 'OFF (recovery) until ' + cyShort(cur.b);
+      if (nx) return (nx.on ? 'Starts ' : 'Off ') + cyShort(nx.a);
+      return C.recEnd ? 'Recovery ended ' + cyShort(C.recEnd) : '';
+    };
+    var LCARDS = [];
+    var calKind = s.calKind || 'all';
+    var kindOk = function (p) { return calKind === 'all' || (calKind === 'inj' ? !isPO(p) : isPO(p)); };
     var nAct = plans.filter(function (x) { return !x.stop; }).length;
     // phase in effect on a date (phases set up in the plan form; week 1 = start)
     var phaseAt = function (p, key) {
@@ -2614,7 +2712,7 @@ class Component extends window.DCLogic {
     };
     // calendar grid
     var view = s.calView === undefined ? null : s.calView;
-    if (view !== null && !plans.some(function (p) { return p.id === view; })) view = null;
+    if (view !== null && !plans.some(function (p) { return p.id === view && kindOk(p); })) view = null;
     var vy = s.vy === undefined ? today.getFullYear() : s.vy, vm = s.vm === undefined ? today.getMonth() : s.vm;
     var firstDow = new Date(vy, vm, 1).getDay(), nDays = new Date(vy, vm + 1, 0).getDate();
     var selKey = s.selDate || todayKey;
@@ -2625,11 +2723,11 @@ class Component extends window.DCLogic {
         var dt = new Date(vy, vm, dd), k = keyOf(dt), isToday = k === todayKey, isSel = k === selKey;
         var dots = [], sub = '', bg = 'rgba(255,255,255,0.04)', fg = '#E6EEFF';
         plans.forEach(function (p, i) {
-          var L = S[i][k]; if (!L) return;
+          var L = S[i][k]; if (!L || !kindOk(p)) return;
           if (view === null) dots.push({ color: COLORS[p.color], wk: String(L[0].week) });
           else if (view === p.id) { bg = COLORS[p.color]; fg = '#04111F'; sub = 'W' + L[0].week + (L.every(function (x) { return done[dkey(p, x)]; }) ? ' ✓' : ''); }
         });
-        if (view === null && dots.length) { var allD = true; plans.forEach(function (p2, i2) { (S[i2][k] || []).forEach(function (x2) { if (!done[dkey(p2, x2)]) allD = false; }); }); if (allD) sub = '✓'; }
+        if (view === null && dots.length) { var allD = true; plans.forEach(function (p2, i2) { if (!kindOk(p2)) return; (S[i2][k] || []).forEach(function (x2) { if (!done[dkey(p2, x2)]) allD = false; }); }); if (allD) sub = '✓'; }
         if (isSel && bg === 'rgba(255,255,255,0.04)') bg = 'rgba(34,211,238,0.18)';
         var more = ''; if (dots.length > 6) { more = '+' + (dots.length - 5); dots = dots.slice(0, 5); }
         cells.push({ more: more, hasMore: !!more, label: String(dd), sub: sub, dots: dots, bg: bg, fg: fg, fw: isToday ? '700' : '400', border: isToday ? '2px solid #67E8F9' : (isSel ? '2px solid #22D3EE' : '1px solid transparent'), blank: false, real: true, aria: dt.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + (isToday ? ', today' : '') + (view === null ? (dots.length || more ? ', ' + (dots.length + (more ? parseInt(more.slice(1), 10) - 1 : 0)) + ' plan' + ((dots.length + (more ? parseInt(more.slice(1), 10) - 1 : 0)) === 1 ? '' : 's') + ' due' : ', nothing due') : (sub ? ', week ' + sub.replace(' ✓', '').replace('W', '') + (sub.indexOf('✓') > -1 ? ', done' : '') : ', not scheduled')) + (sub === '✓' ? ', all done' : ''), pick: function () { self.setState({ selDate: k }); } });
@@ -2640,14 +2738,25 @@ class Component extends window.DCLogic {
     var nextDose = null;
     plans.forEach(function (p, i) { Object.keys(S[i]).sort().forEach(function (k) { if (k > todayKey && (!nextDose || k < nextDose.key)) nextDose = { key: k, name: p.name }; }); });
     var nextDoseText = nextDose ? 'Next dose: ' + nextDose.name + ' on ' + fmtLong(parseKey(nextDose.key)) : (plans.length ? 'No doses left in your plans.' : '');
-    var viewChips = [{ label: 'Master', id: null, color: '#67E8F9' }].concat(plans.map(function (p) { return { label: p.name, id: p.id, color: COLORS[p.color] }; })).map(function (c) {
+    var mPre = vy + '-' + (vm + 1 < 10 ? '0' : '') + (vm + 1) + '-';
+    var inMonth = function (p, i) { return Object.keys(S[i]).some(function (k) { return k.indexOf(mPre) === 0; }); };
+    var calPlans = plans.filter(function (p, i) { return kindOk(p) && (!p.stop || inMonth(p, i) || view === p.id); });
+    var viewChips = [{ label: calKind === 'inj' ? 'All injections' : calKind === 'po' ? 'All by mouth' : 'Master', id: null, color: '#67E8F9' }].concat(calPlans.map(function (p) { return { label: p.name + (p.stop ? ' (stopped)' : ''), id: p.id, color: COLORS[p.color] }; })).map(function (c) {
       var on = view === c.id;
       return { label: c.label, bg: on ? c.color : 'rgba(255,255,255,0.06)', fg: on ? '#04111F' : '#E6EEFF', border: c.color, pick: function () { self.setState({ calView: c.id }); } };
     });
     var weekNowText = function (p) { if (p.stop) return 'Stopped ' + fmtLong(parseKey(p.stop)); var sd = parseKey(p.start), diff = Math.round((today - sd) / 86400000), tw = totalWeeks(p); return diff < 0 ? 'Starts ' + fmtLong(sd) : (Math.floor(diff / 7) + 1 > tw ? 'Plan finished' : 'Week ' + (Math.floor(diff / 7) + 1) + ' of ' + tw); };
     var viewNote = 'Master calendar: all plans combined. The number in each dot is that plan\'s own week of treatment. Tap a day for details.';
     if (view !== null) { var vp = plans.filter(function (p) { return p.id === view; })[0]; viewNote = vp.name + ' · ' + freqLabel(vp) + ' · ' + weekNowText(vp) + '. Colored days are dose days; W = week of treatment.'; }
-    var legend = view === null ? plans.map(function (p) { return { color: COLORS[p.color], name: p.name }; }) : [];
+    var legend = view === null ? plans.filter(function (p, i) { return kindOk(p) && inMonth(p, i); }).map(function (p) { return { color: COLORS[p.color], name: p.name + (p.stop ? ' (stopped)' : '') }; }) : [];
+    var kindChips = [['all', 'All'], ['inj', 'Injections'], ['po', 'By mouth (vitamins & pills)']].map(function (kc) { var on = calKind === kc[0]; return { label: kc[1], bg: on ? 'linear-gradient(135deg, #22D3EE, #818CF8)' : 'rgba(255,255,255,0.06)', fg: on ? '#04111F' : '#E6EEFF', pick: function () { self.setState({ calKind: kc[0], calView: null }); } }; });
+    var dayAll = dayList.filter(function (x) { return calKind === 'all' || (calKind === 'inj' ? x.isInj : !x.isInj); });
+    var dayGroups = (function () {
+      var G = [], inj = dayAll.filter(function (x) { return x.isInj; }), po = dayAll.filter(function (x) { return !x.isInj; });
+      if (calKind !== 'po') G.push({ title: 'INJECTIONS', list: inj, empty: inj.length === 0, emptyTxt: 'No injections this day.' });
+      if (calKind !== 'inj') G.push({ title: 'BY MOUTH · VITAMINS & PILLS', list: po, empty: po.length === 0, emptyTxt: 'Nothing by mouth this day.' });
+      return G;
+    })();
     // ---- dashboard ----
     var totTodayDue = todayList.length, totTodayDone = todayList.filter(function (x) { return x.done; }).length;
     // ---- vial supply, site rest timers and estimated level in the body ----
@@ -2992,19 +3101,21 @@ class Component extends window.DCLogic {
       var setSF = function (patch) { var n2 = {}; for (var k in s.stopF) n2[k] = s.stopF[k]; for (var k2 in patch) n2[k2] = patch[k2]; self.setState({ stopF: n2, stopErr: '' }); };
       return { color: COLORS[p.color], name: p.name,
         isStopped: !!p.stop, isActive: !p.stop, stopBanner: p.stop ? 'Stopped on ' + fmtLong(parseKey(p.stop)) + (p.stopReason ? ' · ' + p.stopReason : '') + '. Nothing is scheduled after that date. Your marked doses, sites and dose history are kept.' : '',
+        cycRows: cycRowsOf(p), cycWarn: cycWarns(p, p.id).map(function (t) { return { t: t }; }), hasCycWarn: cycWarns(p, p.id).length > 0,
+        cycNote: (+p.cycleOn > 0 && +p.cycleOff > 0) || +p.offAfter > 0 ? (+p.maxOn > 0 ? 'Your limit: ' + p.maxOn + ' weeks on.' : 'Set "Warn me if on longer than" in Edit plan details to get a warning.') : 'No time off set. To see recovery dates, set a cycle (weeks on / off) or "Time off after this plan" in Edit plan details.',
         courseTitle: p.stop ? 'COURSE SUMMARY' : 'SO FAR (DOSES YOU MARKED)', courseRows: CO.rows, courseSegs: CO.segs, hasSegs: CO.segs.length > 0,
         phaseNow: phN ? 'Phase now: ' + phN.name + ' · week ' + phN.wk + ' of ' + phN.weeks + ' (phase ' + (phN.idx + 1) + ' of ' + phN.of + ')' : '',
-        openStop: function () { self.setState({ stopF: { id: p.id, date: todayKey < p.start ? p.start : todayKey, reason: '' }, stopErr: '', editMenu: false, chg: null, cu: null, sup: null, form: null }); },
+        openStop: function () { self.setState({ stopF: { id: p.id, date: todayKey < p.start ? p.start : todayKey, reason: '', off: String(p.cycleOff || p.offAfter || '') }, stopErr: '', editMenu: false, chg: null, cu: null, sup: null, form: null }); },
         stopHere: stopHere, stopDate: sF.date || '', stopReason: sF.reason || '', stopMin: p.start,
-        onStopDate: function (e) { setSF({ date: e.target.value }); }, onStopReason: function (e) { setSF({ reason: e.target.value }); },
+        onStopDate: function (e) { setSF({ date: e.target.value }); }, onStopReason: function (e) { setSF({ reason: e.target.value }); }, stopOff: sF.off || '', onStopOff: function (e) { setSF({ off: e.target.value }); },
         reasonChips: ['Finished the cycle', 'Side effects', 'Out of supply', 'Prescriber said stop', 'Taking a break'].map(function (r) { var on = sF.reason === r; return { label: r, bg: on ? 'linear-gradient(135deg, #22D3EE, #818CF8)' : 'rgba(255,255,255,0.06)', fg: on ? '#04111F' : '#E6EEFF', pick: function () { setSF({ reason: on ? '' : r }); } }; }),
-        stopNote: (function () { if (!stopHere || !parseKey(sF.date)) return ''; var later = 0; Object.keys(S[i]).forEach(function (k) { if (k > sF.date) later += S[i][k].length; }); var marked = 0; Object.keys(S[i]).forEach(function (k) { if (k > sF.date) S[i][k].forEach(function (x) { if (done[dkey(p, x)]) marked++; }); }); return later + ' scheduled dose' + (later === 1 ? '' : 's') + ' after ' + fmtShort(parseKey(sF.date)) + ' will be removed from the schedule.' + (marked ? ' ' + marked + ' of them ' + (marked === 1 ? 'is' : 'are') + ' marked taken; those marks will be hidden (they come back if you undo the stop).' : ''); })(),
+        stopNote: (function () { if (!stopHere || !parseKey(sF.date)) return ''; var later = 0; Object.keys(S[i]).forEach(function (k) { if (k > sF.date) later += S[i][k].length; else if (k === sF.date) S[i][k].forEach(function (x) { if (!done[dkey(p, x)]) later++; }); }); var marked = 0; Object.keys(S[i]).forEach(function (k) { if (k > sF.date) S[i][k].forEach(function (x) { if (done[dkey(p, x)]) marked++; }); }); return later + ' scheduled dose' + (later === 1 ? '' : 's') + ' from ' + fmtShort(parseKey(sF.date)) + ' on (not marked taken) will be removed from the schedule.' + (marked ? ' ' + marked + ' of them ' + (marked === 1 ? 'is' : 'are') + ' marked taken; those marks will be hidden (they come back if you undo the stop).' : ''); })(),
         confirmStop: function () {
           var d = self.state.stopF && self.state.stopF.date;
           if (!parseKey(d)) { self.setState({ stopErr: 'Pick the date you stopped.' }); return; }
           if (d < p.start) { self.setState({ stopErr: 'The stop date can\'t be before the plan started (' + fmtShort(parseKey(p.start)) + ').' }); return; }
           var rsn = String((self.state.stopF && self.state.stopF.reason) || '').trim().slice(0, 120);
-          self.setState({ plans: plans.map(function (x) { if (x.id !== p.id) return x; var nx = {}; for (var k in x) nx[k] = x[k]; nx.stop = d; nx.stopReason = rsn; return nx; }), stopF: null, stopErr: '', planPage: p.id });
+          self.setState({ plans: plans.map(function (x) { if (x.id !== p.id) return x; var nx = {}; for (var k in x) nx[k] = x[k]; nx.stop = d; nx.stopReason = rsn; var ow = parseInt(self.state.stopF && self.state.stopF.off, 10); if (!(+x.cycleOn > 0 && +x.cycleOff > 0)) nx.offAfter = ow > 0 ? ow : 0; return nx; }), stopF: null, stopErr: '', planPage: p.id });
         },
         cancelStop: function () { self.setState({ stopF: null, stopErr: '' }); },
         hasStopErr: stopHere && !!s.stopErr, stopErr: s.stopErr || '',
@@ -3012,7 +3123,7 @@ class Component extends window.DCLogic {
         newCourse: function () {
           if (nAct >= MAXP) { self.setState({ cuMsg: 'You already have ' + MAXP + ' active plans. Stop or delete one first.' }); return; }
           var e9 = eff(p, p.stop || todayKey);
-          self.setState({ tab: 'prof', ptab: 'plans', planPage: null, chg: null, cu: null, sup: null, stopF: null, formAdv: true, form: { syringe: syrType(p), drawNeedle: p.drawNeedle || '', injectNeedle: p.injectNeedle || '', route: p.route || 'SC', name: p.name, dose: e9.dose, unit: e9.unit, vial: e9.vial || '', water: e9.water || '', titrate: false, freq: e9.freq, n: String(e9.n || 2), perDay: p.perDay || 1, cycleOn: String(p.cycleOn || ''), cycleOff: String(p.cycleOff || ''), days: (e9.days || []).slice(), start: todayKey, weeks: String(p.weeks || 8), sites: (p.sites || []).slice(), phases: (p.phases || []).map(function (q) { return { name: q.name, weeks: String(q.weeks), dose: String(q.dose), freq: q.freq, n: String(q.n || 2) }; }) }, formError: '' });
+          self.setState({ tab: 'prof', ptab: 'plans', planPage: null, chg: null, cu: null, sup: null, stopF: null, formAdv: true, form: { syringe: syrType(p), drawNeedle: p.drawNeedle || '', injectNeedle: p.injectNeedle || '', route: p.route || 'SC', name: p.name, dose: e9.dose, unit: e9.unit, vial: e9.vial || '', water: e9.water || '', titrate: false, freq: e9.freq, n: String(e9.n || 2), perDay: p.perDay || 1, cycleOn: String(p.cycleOn || ''), cycleOff: String(p.cycleOff || ''), offAfter: String(p.offAfter || ''), maxOn: String(p.maxOn || ''), days: (e9.days || []).slice(), start: (function () { var rc = cycleOf(p).recEnd; if (rc) { var nk = keyOf(cyAdd(rc, 1)); return nk > todayKey ? nk : todayKey; } return todayKey; })(), weeks: String(p.weeks || 8), sites: (p.sites || []).slice(), phases: (p.phases || []).map(function (q) { return { name: q.name, weeks: String(q.weeks), dose: String(q.dose), freq: q.freq, n: String(q.n || 2) }; }) }, formError: '' });
           setTimeout(function () { try { document.getElementById('mainScroll').scrollTop = 0; } catch (e) {} }, 0);
         }, hasSy: nd1 ? false : (isIM ? ml0 > 0 : u0 > 0), sy: syrFor(syrType(p), u0, ml0),
         open: plans.length <= 2 || s.openPlan === p.id, shut: !(plans.length <= 2 || s.openPlan === p.id), canFold: plans.length > 2, foldLabel: s.openPlan === p.id ? 'Hide details' : 'Details', toggleOpen: function () { self.setState({ openPlan: s.openPlan === p.id ? null : p.id }); },
@@ -3036,7 +3147,7 @@ class Component extends window.DCLogic {
         supHere: !!(s.sup && s.sup.id === p.id) || !!(s.cu && s.cu.id === p.id) || !!(s.chg && s.chg.id === p.id), formHere: !!(s.form && s.form.id === p.id),
         catchUp: function () { var y = new Date(today); y.setDate(y.getDate() - 1); var yk = keyOf(y); self.setState({ cu: { id: p.id, to: yk < p.start ? p.start : yk }, cuError: '', cuMsg: '', chg: null, form: null }); },
         change: function () { self.setState({ cu: null, chg: { id: p.id, from: todayKey, dose: e.titrate && stepsFor(p.name) ? '' : e.dose, unit: e.unit, vial: e.vial || '', water: e.water || '', titrated: !!(e.titrate && stepsFor(p.name)), stopTit: false, freq: e.freq, n: String(e.n || 2), days: (e.days || []).slice(), strandAsk: 0 }, chgError: '', form: null }); },
-        edit: function () { self.setState({ form: { phases: (p.phases || []).map(function (q) { return { name: q.name, weeks: String(q.weeks), dose: String(q.dose), freq: q.freq, n: String(q.n || 2) }; }), syringe: syrType(p), drawNeedle: p.drawNeedle || '', injectNeedle: p.injectNeedle || '', route: p.route || 'SC', name: p.name, dose: p.dose, unit: p.unit, vial: p.vial || '', water: p.water || '', titrate: p.titrate, freq: p.freq, n: String(p.n || 2), perDay: p.perDay || 1, cycleOn: String(p.cycleOn || ''), cycleOff: String(p.cycleOff || ''), days: (p.days || []).slice(), start: p.start, weeks: String(p.weeks), sites: (p.sites || []).map(canon).filter(function (x) { return siteList(p.route || 'SC', p.name).indexOf(x) > -1; }), id: p.id }, formError: '', chg: null, cu: null, sup: null }); },
+        edit: function () { self.setState({ form: { phases: (p.phases || []).map(function (q) { return { name: q.name, weeks: String(q.weeks), dose: String(q.dose), freq: q.freq, n: String(q.n || 2) }; }), syringe: syrType(p), drawNeedle: p.drawNeedle || '', injectNeedle: p.injectNeedle || '', route: p.route || 'SC', name: p.name, dose: p.dose, unit: p.unit, vial: p.vial || '', water: p.water || '', titrate: p.titrate, freq: p.freq, n: String(p.n || 2), perDay: p.perDay || 1, cycleOn: String(p.cycleOn || ''), cycleOff: String(p.cycleOff || ''), offAfter: String(p.offAfter || ''), maxOn: String(p.maxOn || ''), days: (p.days || []).slice(), start: p.start, weeks: String(p.weeks), sites: (p.sites || []).map(canon).filter(function (x) { return siteList(p.route || 'SC', p.name).indexOf(x) > -1; }), id: p.id }, formError: '', chg: null, cu: null, sup: null }); },
         delLabel: armLbl('plan' + p.id, 'Delete'), delBg: armBg('plan' + p.id), delFg: armFg('plan' + p.id),
         remove: twoTap('plan' + p.id, function () { var keep = plans.filter(function (x) { return x.id !== p.id; }), live = {}; keep.forEach(function (x) { live[x.id] = 1; }); var nd = {}; for (var dk in done) { if (live[parseInt(dk.split('|')[0], 10)]) nd[dk] = done[dk]; } var ns0 = {}; for (var sk0 in sov) { if (live[parseInt(sk0.split('|')[0], 10)]) ns0[sk0] = sov[sk0]; } self.setState({ plans: keep, done: nd, sov: ns0, calView: null, cu: null, chg: null, sup: null }); }) };
     });
@@ -3195,6 +3306,7 @@ class Component extends window.DCLogic {
     var fE = f ? { dose: f.dose, unit: f.unit, vial: f.vial, water: f.water, titrate: f.titrate && canTitrate } : null;
     var fPO = !!f && f.route === 'PO', fPen = !!f && !fPO && f.syringe === 'pen', fUnits = fPO ? ['mg', 'g', 'mcg', 'IU', 'capsules', 'tablets', 'scoops', 'tsp'].concat(f.unit && ['mg', 'g', 'mcg', 'IU', 'capsules', 'tablets', 'scoops', 'tsp', 'units', 'mL'].indexOf(f.unit) < 0 ? [f.unit] : []) : fPen ? ['mg', 'mcg'] : ['mg', 'mcg', 'units', 'mL'];
     var fSiteAll = f ? siteList(f.route || 'SC', f.name) : [];
+    var fCyObj = f ? (function () { var P0 = f.phases || [], W0 = P0.length ? P0.reduce(function (a, q) { return a + (parseInt(q.weeks, 10) || 0); }, 0) : (parseInt(f.weeks, 10) || 0), ex = f.id ? plans.filter(function (x) { return x.id === f.id; })[0] : null; return { name: f.name, start: f.start, weeks: W0 || 1, freq: f.freq, cycleOn: parseInt(f.cycleOn, 10) || 0, cycleOff: parseInt(f.cycleOff, 10) || 0, offAfter: parseInt(f.offAfter, 10) || 0, maxOn: parseInt(f.maxOn, 10) || 0, stop: ex && ex.stop ? ex.stop : null }; })() : null;
     var formPanel = f ? {
       f: f, formTitle: f.id ? 'Edit plan' : 'New plan', isEdit: !!f.id,
       fRouteWarn: (function () { var nm = f.name || '', rt = f.route || 'SC'; if (/\(IM\)|\bIM\b|intramuscular/i.test(nm) && rt !== 'IM') return 'The name says IM, but the route picked is ' + (rt === 'PO' ? 'by mouth' : 'SubQ') + '. Change the name or the route.'; if (/\(SC\)|\bSubQ\b|\bSC\b|subcutaneous/i.test(nm) && rt !== 'SC') return 'The name says SubQ, but the route picked is ' + (rt === 'IM' ? 'IM' : 'by mouth') + '. Change the name or the route.'; return ''; })(),
@@ -3212,6 +3324,7 @@ class Component extends window.DCLogic {
       notOnce: f.freq !== 'once', showAdv: true, advLabel: s.formAdv ? 'Hide extra options' : 'More options (more than one dose a day, on/off cycle)',
       toggleAdv: function () { self.setState({ formAdv: !s.formAdv }); },
       cycleChips: [[0, 0, 'No cycle'], [4, 4, '4 on / 4 off'], [8, 4, '8 on / 4 off'], [12, 4, '12 on / 4 off'], [16, 4, '16 on / 4 off'], [6, 2, '6 on / 2 off']].map(function (cy) { var on = (parseInt(f.cycleOn, 10) || 0) === cy[0] && (parseInt(f.cycleOff, 10) || 0) === cy[1]; var c = chip(on); return { label: cy[2], bg: c.bg, fg: c.fg, pick: function () { setF({ cycleOn: cy[0] ? String(cy[0]) : '', cycleOff: cy[1] ? String(cy[1]) : '' }); } }; }),
+      fCycRows: f.name ? cycRowsOf(fCyObj) : [], fCycWarn: cycWarns(fCyObj, f.id).map(function (t) { return { t: t }; }),
       cycleNote: (function () {
         var on = parseInt(f.cycleOn, 10) || 0, off = parseInt(f.cycleOff, 10) || 0, P0 = f.phases || [];
         var W = P0.length ? P0.reduce(function (a, q) { return a + (parseInt(q.weeks, 10) || 0); }, 0) : (parseInt(f.weeks, 10) || 0);
@@ -3259,6 +3372,7 @@ class Component extends window.DCLogic {
       onFName: function (e) { setF({ name: e.target.value }); }, onFDose: function (e) { setF({ dose: e.target.value }); },
       onFStart: function (e) { setF({ start: e.target.value }); }, onFWeeks: function (e) { setF({ weeks: e.target.value }); },
       onFVial: function (e) { setF({ vial: e.target.value }); }, onFWater: function (e) { setF({ water: e.target.value }); },
+      onFOffAfter: function (e) { setF({ offAfter: e.target.value }); }, onFMaxOn: function (e) { setF({ maxOn: e.target.value }); },
       onFN: function (e) { setF({ n: e.target.value }); }, onFOn: function (e) { setF({ cycleOn: e.target.value }); }, onFOff: function (e) { setF({ cycleOff: e.target.value }); },
       fConc: concOf(fE) ? 'Concentration: ' + r1(concOf(fE) * 100) / 100 + ' mg/mL' + (concOf(fE) < 50 ? ' (' + Math.round(concOf(fE) * 1000) + ' mcg/mL)' : '') + (((f.syringe || 'insulin') !== 'insulin') ? (mgOf({ name: f.name }, fE, 1) ? ' · dose = ' + Math.round(mgOf({ name: f.name }, fE, 1) / concOf(fE) * 100) / 100 + ' mL' : '') : (unitsOf({ name: f.name }, fE, 1) ? ' · first dose = ' + r1(unitsOf({ name: f.name }, fE, 1)) + ' units' : '')) : 'Enter vial size and liquid to see concentration and the syringe.',
       fsy: ((f.syringe || 'insulin') !== 'insulin') ? (f.syringe === 'tb1' ? tbCap : function (o) { return o; })(syrML(concOf(fE) && mgOf({ name: f.name }, fE, 1) ? mgOf({ name: f.name }, fE, 1) / concOf(fE) : 0, f.syringe === 'ml3' ? 3 : 1)) : syr(unitsOf({ name: f.name }, fE, 1)),
@@ -3286,7 +3400,7 @@ class Component extends window.DCLogic {
         else if (!fPO && !f.sites.length) err = 'Pick at least one injection site.';
         else if (!fPO && f.sites.some(function (x) { return siteList(f.route || 'SC', f.name).indexOf(x) === -1; })) err = 'Some sites do not match the ' + ((f.route === 'IM') ? 'IM' : 'SubQ') + ' route. Re-pick the sites.';
         if (err) { self.setState({ formError: err }); return; }
-        var rec = { syringe: fPO ? 'none' : (f.syringe || (f.route === 'IM' ? 'ml3' : 'insulin')), drawNeedle: (fPO || fPen || (f.syringe || 'insulin') === 'insulin' || f.syringe === 'tb1') ? '' : (f.drawNeedle || ''), injectNeedle: (fPO || fPen) ? '' : (f.injectNeedle || ''), route: f.route || 'SC', name: f.name.trim(), dose: f.dose, unit: f.unit, vial: (fPO || fPen) ? '' : f.vial, water: (fPO || fPen) ? '' : f.water, titrate: !!(f.titrate && canTitrate), freq: f.freq, n: N || 2, perDay: f.perDay || 1, cycleOn: on, cycleOff: off, days: f.days, start: f.start, weeks: parseInt(f.weeks, 10) || 1, sites: fPO ? [] : f.sites };
+        var rec = { syringe: fPO ? 'none' : (f.syringe || (f.route === 'IM' ? 'ml3' : 'insulin')), drawNeedle: (fPO || fPen || (f.syringe || 'insulin') === 'insulin' || f.syringe === 'tb1') ? '' : (f.drawNeedle || ''), injectNeedle: (fPO || fPen) ? '' : (f.injectNeedle || ''), route: f.route || 'SC', name: f.name.trim(), dose: f.dose, unit: f.unit, vial: (fPO || fPen) ? '' : f.vial, water: (fPO || fPen) ? '' : f.water, titrate: !!(f.titrate && canTitrate), freq: f.freq, n: N || 2, perDay: f.perDay || 1, cycleOn: on, cycleOff: off, offAfter: parseInt(f.offAfter, 10) > 0 ? parseInt(f.offAfter, 10) : 0, maxOn: parseInt(f.maxOn, 10) > 0 ? parseInt(f.maxOn, 10) : 0, days: f.days, start: f.start, weeks: parseInt(f.weeks, 10) || 1, sites: fPO ? [] : f.sites };
         rec.phases = PH.map(function (q, qi) { return { name: String(q.name || '').trim() || ('Phase ' + (qi + 1)), weeks: parseInt(q.weeks, 10), dose: String(q.dose), freq: q.freq, n: parseInt(q.n, 10) || 2 }; });
         var phCh = [], accW = 0, sdP = parseKey(f.start);
         rec.phases.forEach(function (q, qi) { if (qi > 0 && sdP) phCh.push({ from: keyOf(addDays(sdP, accW * 7)), dose: q.dose, unit: f.unit, freq: q.freq, n: q.n, days: [], ph: q.name, titrate: false }); accW += q.weeks; });
@@ -3720,6 +3834,7 @@ class Component extends window.DCLogic {
       todayList: todayList, todayEmpty: todayList.length === 0, viewChips: viewChips, viewNote: viewNote,
       monthName: new Date(vy, vm, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
       weekdays: ['S', 'M', 'T', 'W', 'T', 'F', 'S'], cells: cells, legend: legend, hasLegend: legend.length > 0,
+      kindChips: kindChips, dayGroups: dayGroups,
       selLabel: (selKey === todayKey ? 'TODAY · ' : '') + (parseKey(selKey) ? fmtLong(parseKey(selKey)).toUpperCase() : ''), dayList: dayList, dayEmpty: dayList.length === 0,
       prevMonth: function () { var d2 = new Date(vy, vm - 1, 1); self.setState({ vy: d2.getFullYear(), vm: d2.getMonth() }); },
       nextMonth: function () { var d2 = new Date(vy, vm + 1, 1); self.setState({ vy: d2.getFullYear(), vm: d2.getMonth() }); },
@@ -3729,10 +3844,14 @@ class Component extends window.DCLogic {
       pagePlan: planCards.filter(function (c) { return c.pid === s.planPage; }).map(function (c) { c.open = true; c.shut = false; c.canFold = false; c.shutWarn = false; return c; }),
       pageDash: dash.filter(function (d, i) { return plans[i] && plans[i].id === s.planPage; }).map(function (d) { d.open = true; d.shut = false; d.canFold = false; return d; }),
       stoppedCards: planCards.filter(function (c) { return c.isStopped; }).map(function (c) { return { name: c.name, color: c.color, line: c.stopBanner.split('. Nothing')[0], stats: c.courseRows.filter(function (r) { return r.k === 'Taken for' || r.k === 'Total taken'; }).map(function (r) { return r.k + ': ' + r.v; }).join(' · '), open: function () { self.setState({ planPage: c.pid, editMenu: false, chg: null, cu: null, sup: null, form: null, stopF: null }); setTimeout(function () { try { document.getElementById('mainScroll').scrollTop = 0; } catch (e) {} }, 0); } }; }),
-      listCards: planCards.map(function (c, i) { var D = dash[i] || {}; return { name: c.name, color: c.color, status: D.status || '', line: c.lineShort, stats: D.brief || '', three: c.three, nextChg: c.nextChg || '', routeWarn: c.routeWarn ? 'Name and route differ' : '', warn: c.warnOn && !(snooze[c.pid] && snooze[c.pid] >= todayKey) ? 'Supply low or out' : '', open: function () { self.setState({ planPage: c.pid, editMenu: false, chg: null, cu: null, sup: null, form: null }); setTimeout(function () { try { var sc = document.getElementById('mainScroll'); if (sc) sc.scrollTop = 0; } catch (e) {} }, 0); }, act: !c.isStopped }; }).filter(function (c) { return c.act; }),
+      listCards: LCARDS = planCards.map(function (c, i) { var D = dash[i] || {}; return { po: isPO(plans[i]), cyc: cycNowTxt(plans[i]), cwarn: cycWarns(plans[i], plans[i].id)[0] || '', name: c.name, color: c.color, status: D.status || '', line: c.lineShort, stats: D.brief || '', three: c.three, nextChg: c.nextChg || '', routeWarn: c.routeWarn ? 'Name and route differ' : '', warn: c.warnOn && !(snooze[c.pid] && snooze[c.pid] >= todayKey) ? 'Supply low or out' : '', open: function () { self.setState({ planPage: c.pid, editMenu: false, chg: null, cu: null, sup: null, form: null }); setTimeout(function () { try { var sc = document.getElementById('mainScroll'); if (sc) sc.scrollTop = 0; } catch (e) {} }, 0); }, act: !c.isStopped }; }).filter(function (c) { return c.act; }),
+      listGroups: (function () {
+        var G = [['INJECTIONS', false, 'No active injection plans.'], ['BY MOUTH · VITAMINS & PILLS', true, 'No active plans taken by mouth.']].map(function (g) { var cs = LCARDS.filter(function (c) { return c.po === g[1]; }); return { title: g[0] + ' (' + cs.length + ')', cards: cs, empty: cs.length === 0, emptyTxt: g[2] }; });
+        return G;
+      })(),
       hasStopped: plans.some(function (x) { return x.stop; }),
       backToList: function () { self.setState({ planPage: null, editMenu: false, chg: null, cu: null, sup: null, form: null }); setTimeout(function () { try { document.getElementById('mainScroll').scrollTop = 0; } catch (e) {} }, 0); }, formOpen: !!f, formNewOpen: !!(f && !f.id), showAddBtn: !f && nAct < MAXP, atMax: nAct >= MAXP,
-      openForm: function () { self.setState({ tab: 'prof', ptab: 'plans', planPage: null, chg: null, cu: null, sup: null, form: { syringe: 'insulin', drawNeedle: '', injectNeedle: '', route: 'SC', name: '', dose: '', unit: 'mg', vial: '', water: '', titrate: false, freq: 'weekly', n: '2', perDay: 1, cycleOn: '', cycleOff: '', days: [], start: todayKey, weeks: '16', sites: [] }, formError: '' }); },
+      openForm: function () { self.setState({ tab: 'prof', ptab: 'plans', planPage: null, chg: null, cu: null, sup: null, form: { syringe: 'insulin', drawNeedle: '', injectNeedle: '', route: 'SC', name: '', dose: '', unit: 'mg', vial: '', water: '', titrate: false, freq: 'weekly', n: '2', perDay: 1, cycleOn: '', cycleOff: '', offAfter: '', maxOn: '', days: [], start: todayKey, weeks: '16', sites: [] }, formError: '' }); },
       hasFormError: !!s.formError, formError: s.formError || '', nameSuggest: nameSuggest,
       goProfile: function () { self.setState({ tab: 'prof', ptab: 'plans' }); },
       homeToday: todayList, homeTodayEmpty: todayList.length === 0, homeTomorrow: tomorrowList, hasTomorrow: tomorrowList.length > 0, tomorrowLabel: fmtLong(tmD).toUpperCase(), homeHasPlans: plans.length > 0,
