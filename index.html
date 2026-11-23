@@ -1128,9 +1128,10 @@ h1,h2{letter-spacing:-0.02em}
 <div style="font-size: 13px; line-height: 1.5; color: #AEB9D4;">{{ fUnitNote }}</div>
 </div>
 <sc-if value="{{ fHasVial }}" hint-placeholder-val="{{ true }}">
+<div style="font-size: 15px; font-weight: 700; color: #E6EEFF; margin-top: 6px;">{{ reconTitle }}</div>
 <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;">
 <div style="display: flex; flex-direction: column; gap: 6px;"><label for="fVial" style="font-size: 13px; font-weight: 600; color: #B4C0DA;">Total in vial (mg)</label><input id="fVial" type="number" inputmode="decimal" value="{{ f.vial }}" onChange="{{ onFVial }}" style="height: 46px; box-sizing: border-box; padding: 0 12px; font-size: 16px; font-family: inherit; border: 1px solid rgba(148,163,209,0.35); border-radius: 12px; background: rgba(255,255,255,0.05); color: #E6EEFF;"></div>
-<div style="display: flex; flex-direction: column; gap: 6px;"><label for="fWater" style="font-size: 13px; font-weight: 600; color: #B4C0DA;">Total liquid (mL)</label><input id="fWater" type="number" inputmode="decimal" value="{{ f.water }}" onChange="{{ onFWater }}" style="height: 46px; box-sizing: border-box; padding: 0 12px; font-size: 16px; font-family: inherit; border: 1px solid rgba(148,163,209,0.35); border-radius: 12px; background: rgba(255,255,255,0.05); color: #E6EEFF;"></div>
+<div style="display: flex; flex-direction: column; gap: 6px;"><label for="fWater" style="font-size: 13px; font-weight: 600; color: #B4C0DA;">{{ waterLabel }}</label><input id="fWater" type="number" inputmode="decimal" value="{{ f.water }}" onChange="{{ onFWater }}" style="height: 46px; box-sizing: border-box; padding: 0 12px; font-size: 16px; font-family: inherit; border: 1px solid rgba(148,163,209,0.35); border-radius: 12px; background: rgba(255,255,255,0.05); color: #E6EEFF;"></div>
 </div>
 <div style="font-size: 13px; color: #AEB9D4;">{{ concHint }}</div>
 <div style="font-size: 13px; font-weight: 600; color: #E6EEFF;">{{ fConc }}</div>
@@ -1343,9 +1344,10 @@ h1,h2{letter-spacing:-0.02em}
 <div style="font-size: 13px; line-height: 1.5; color: #AEB9D4;">{{ fUnitNote }}</div>
 </div>
 <sc-if value="{{ fHasVial }}" hint-placeholder-val="{{ true }}">
+<div style="font-size: 15px; font-weight: 700; color: #E6EEFF; margin-top: 6px;">{{ reconTitle }}</div>
 <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;">
 <div style="display: flex; flex-direction: column; gap: 6px;"><label for="fVial" style="font-size: 13px; font-weight: 600; color: #B4C0DA;">Total in vial (mg)</label><input id="fVial" type="number" inputmode="decimal" value="{{ f.vial }}" onChange="{{ onFVial }}" style="height: 46px; box-sizing: border-box; padding: 0 12px; font-size: 16px; font-family: inherit; border: 1px solid rgba(148,163,209,0.35); border-radius: 12px; background: rgba(255,255,255,0.05); color: #E6EEFF;"></div>
-<div style="display: flex; flex-direction: column; gap: 6px;"><label for="fWater" style="font-size: 13px; font-weight: 600; color: #B4C0DA;">Total liquid (mL)</label><input id="fWater" type="number" inputmode="decimal" value="{{ f.water }}" onChange="{{ onFWater }}" style="height: 46px; box-sizing: border-box; padding: 0 12px; font-size: 16px; font-family: inherit; border: 1px solid rgba(148,163,209,0.35); border-radius: 12px; background: rgba(255,255,255,0.05); color: #E6EEFF;"></div>
+<div style="display: flex; flex-direction: column; gap: 6px;"><label for="fWater" style="font-size: 13px; font-weight: 600; color: #B4C0DA;">{{ waterLabel }}</label><input id="fWater" type="number" inputmode="decimal" value="{{ f.water }}" onChange="{{ onFWater }}" style="height: 46px; box-sizing: border-box; padding: 0 12px; font-size: 16px; font-family: inherit; border: 1px solid rgba(148,163,209,0.35); border-radius: 12px; background: rgba(255,255,255,0.05); color: #E6EEFF;"></div>
 </div>
 <div style="font-size: 13px; color: #AEB9D4;">{{ concHint }}</div>
 <div style="font-size: 13px; font-weight: 600; color: #E6EEFF;">{{ fConc }}</div>
@@ -2260,13 +2262,15 @@ class Component extends window.DCLogic {
     var GROUPS = [
       ['Weight & metabolic (GLP-1 and friends)', /GLP-1|GIP|glucagon|Amylin|Triple agonist|semaglutide|tirzepatide|retatrutide/i],
       ['Androgens (testosterone)', /Androgen|Gels, patch/i],
-      ['Growth hormone axis', /GHRH|GH secretagogue|hGH fragment|IGF|MGF|Growth factor|Growth hormone/i],
+      ['Growth hormone & muscle', /GHRH|GH secretagogue|hGH fragment|IGF|MGF|Growth factor|Growth hormone|Follistatin/i],
       ['Melanocortin', /Melanocortin/i],
-      ['Repair & recovery', /Thymosin beta-4|Copper peptide|Synthetic peptide|Tripeptide|EPO-derived/i],
-      ['Immune', /Immune|Antimicrobial|Thymic/i],
+      ['Repair & recovery', /BPC-157|TB-500|Wolverine|GLOW|KLOW|Thymosin beta-4|Copper peptide|Synthetic peptide|EPO-derived|KPV|^Tripeptide|GHK \(copper-free\)/i],
+      ['Immune & inflammation', /Immune|Antimicrobial|Thymic|Vasoactive/i],
       ['Brain, sleep & longevity', /Nootropic|Sleep|Tetrapeptide|Short peptide|Pinealon/i],
-      ['Mitochondrial & small molecules', /Mitochondri|Coenzyme|Small molecule/i],
-      ['Hormone therapy support & vitamins', /Aromatase|GnRH|Vitamin D/i],
+      ['Mitochondrial, antioxidants & small molecules', /Mitochondri|Coenzyme|Small molecule|Glutathione|Antioxidant/i],
+      ['Hormones & hormone support', /Aromatase|GnRH|Kisspeptin|Oxytocin|Hormone peptide/i],
+      ['Skin & collagen', /Cosmetic|Collagen/i],
+      ['Vitamins & supplements', /Vitamin|Dietary supplement|lipotropic/i],
       ['Other', /.*/]
     ];
     var groupOf = function (c) { for (var gi = 0; gi < GROUPS.length; gi++) { if (GROUPS[gi][1].test(c.klass + ' ' + c.name)) return GROUPS[gi][0]; } return 'Other'; };
@@ -3240,6 +3244,8 @@ class Component extends window.DCLogic {
       injChips: ((f.route || 'SC') === 'IM' ? ['23G 1"', '25G 1"', '22G 1.5"', '23G 1.5"'] : ((f.syringe || 'insulin') === 'insulin' ? ['29G 1/2"', '30G 5/16"', '31G 5/16"'] : ['25G 5/8"', '26G 3/8"', '27G 1/2"'])).map(function (n) { var c = chip(f.injectNeedle === n); return { label: n, bg: c.bg, fg: c.fg, pick: function () { setF({ injectNeedle: n }); } }; }),
       onFDraw: function (e) { setF({ drawNeedle: e.target.value }); }, onFInj: function (e) { setF({ injectNeedle: e.target.value }); },
       needleNote: (f.syringe || 'insulin') === 'insulin' ? 'Insulin syringes have a fixed needle, so one needle does both.' : f.syringe === 'tb1' ? 'One-piece TB syringe: fixed needle, fill and inject with the same needle (less waste). Common sizes: 25G 5/8" or 26G 3/8" for lean people.' : 'Luer-lock: draw with the thick needle, then twist on the thin one to inject. Confirm sizes with your prescriber.',
+      reconTitle: (f.route === 'IM') ? 'Vial (premixed)' : 'Reconstitution (mixing the vial)',
+      waterLabel: (f.route === 'IM') ? 'Total liquid (mL)' : 'Water added or total liquid (mL)',
       concHint: (f.route === 'IM') ? 'Premixed oil (e.g. 200 mg/mL, 10 mL vial): enter 2000 mg and 10 mL.' : 'Powder vial: enter mg in the vial and mL of water you add. Premixed: total mg and total mL.',
       siteChips: siteList(f.route || 'SC', f.name).map(function (st) { var idx = f.sites.indexOf(st), on = idx > -1; return { label: (on ? (idx + 1) + '. ' : '') + st, bg: on ? 'linear-gradient(135deg, #22D3EE, #818CF8)' : 'rgba(255,255,255,0.06)', fg: on ? '#04111F' : '#E6EEFF', pick: function () { setF({ sites: on ? f.sites.filter(function (x) { return x !== st; }) : f.sites.concat([st]) }); } }; }),
       siteHeader: (f.route === 'IM') ? 'IM sites (into the muscle) — tap in rotation order' : 'SubQ sites (into the fat layer) — tap in rotation order',
