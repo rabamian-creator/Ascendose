@@ -2,7 +2,7 @@
 
 Personal dose-tracker web app, for testing only. Not for sale.
 
-Open: https://rabamian-creator.github.io/ascendose/
+Open: https://rabamian-creator.github.io/Ascendose/
 
 No account needed. Your data stays on your phone only. Add it to your Home Screen and always open it from that icon.
 
