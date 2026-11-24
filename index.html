@@ -101,6 +101,7 @@ h1,h2{letter-spacing:-0.02em}
 
 <div id="mainScroll" style="flex-grow: 1; overflow-y: auto; padding: 20px;">
 <input id="sheetFile" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.txt,application/pdf,image/jpeg,image/png" onChange="{{ onSheetFile }}" aria-hidden="true" tabindex="-1" style="position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none;">
+<input id="labPhotoFile" type="file" accept="image/*,.pdf,application/pdf" onChange="{{ onLabPhoto }}" aria-hidden="true" tabindex="-1" style="position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none;">
 
 <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
 <div style="display: flex; flex-direction: column; gap: 16px;">
@@ -140,6 +141,7 @@ h1,h2{letter-spacing:-0.02em}
 <sc-if value="{{ homeHasInj }}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ goSites }}" style="min-height: 40px; padding: 0 12px; border-radius: 10px; border: 1px solid #67E8F9; background: transparent; color: #67E8F9; font-size: 13px; font-weight: 600; cursor: pointer;">Injection site map</button></sc-if>
 </div>
 </div>
+<sc-if value="{{ homeLab }}" hint-placeholder-val="{{ false }}"><div role="alert" style="padding: 14px 16px; border-radius: 14px; border: 1px solid #F87171; background: rgba(248,113,113,0.10); display: flex; flex-direction: column; gap: 8px;"><div style="font-size: 13px; font-weight: 700; letter-spacing: 0.08em; color: #FCA5A5;">LAB RESULTS</div><div style="font-size: 14px; line-height: 1.5;">{{ homeLabText }} Please review them with your medical provider.</div><div style="display: flex; flex-wrap: wrap; gap: 8px;"><button type="button" onClick="{{ homeLabOpen }}" style="min-height: 40px; padding: 0 12px; border-radius: 10px; border: 1px solid #FCA5A5; background: transparent; color: #FCA5A5; font-size: 13px; font-weight: 700; cursor: pointer;">Open lab results</button><button type="button" onClick="{{ homeLabHide }}" style="min-height: 40px; padding: 0 12px; border-radius: 10px; border: 1px solid rgba(148,163,209,0.35); background: transparent; color: #E6EEFF; font-size: 13px; font-weight: 600; cursor: pointer;">Hide</button></div></div></sc-if>
 <sc-if value="{{ hasReorders }}" hint-placeholder-val="{{ false }}">
 <div role="alert" style="padding: 14px 16px; border-radius: 14px; border: 1px solid #FBBF24; background: rgba(251,191,36,0.12); display: flex; flex-direction: column; gap: 8px;">
 <div style="font-size: 13px; font-weight: 700; letter-spacing: 0.08em; color: #FCD34D;">TIME TO REORDER</div>
@@ -624,8 +626,105 @@ h1,h2{letter-spacing:-0.02em}
 </div>
 </sc-if>
 
+<sc-if value="{{ isLabs }}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 14px;">
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; padding: 4px; border-radius: 12px; background: rgba(129,140,248,0.14);"><sc-for list="{{ btabs }}" as="bt" hint-placeholder-count="2"><button type="button" onClick="{{ bt.pick }}" style="min-height: 44px; border: none; border-radius: 9px; background: {{ bt.bg }}; color: {{ bt.fg }}; font-size: 14px; font-weight: 600; cursor: pointer;">{{ bt.label }}</button></sc-for></div>
+<sc-if value="{{ ltOpen }}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 12px;">
+<button type="button" onClick="{{ ltBack }}" style="align-self: flex-start; min-height: 40px; padding: 0 12px; border: 1px solid rgba(148,163,209,0.35); border-radius: 10px; background: transparent; color: #E6EEFF; font-size: 14px; font-weight: 600; cursor: pointer;">&#8592; All lab results</button>
+<div style="display: flex; flex-direction: column; gap: 2px;"><span style="font-size: 20px; font-weight: 700;">{{ ltName }}</span><span style="font-size: 13px; color: #AEB9D4;">{{ ltGroup }}</span></div>
+<button type="button" onClick="{{ ltToggleWatch }}" style="align-self: flex-start; min-height: 40px; padding: 0 14px; border: 1px solid #FCD34D; border-radius: 10px; background: rgba(251,191,36,0.10); color: #FCD34D; font-size: 14px; font-weight: 700; cursor: pointer;">{{ ltStar }}</button>
+<sc-if value="{{ ltHasChart }}" hint-placeholder-val="{{ false }}">
+<div style="padding: 12px; border: 1px solid rgba(148,163,209,0.18); border-radius: 14px; background: rgba(255,255,255,0.05); display: flex; flex-direction: column; gap: 8px;">
+<svg viewBox="0 0 320 190" role="img" aria-label="Trend of {{ ltName }}" style="display: block; width: 100%; height: auto;">
+<sc-if value="{{ ltc.hasBand }}"><rect x="{{ ltc.band.x }}" y="{{ ltc.band.y }}" width="{{ ltc.band.w }}" height="{{ ltc.band.h }}" fill="rgba(52,211,153,0.14)" stroke="rgba(52,211,153,0.45)" stroke-width="0.8" stroke-dasharray="3 3"></rect></sc-if>
+<line x1="38" y1="162" x2="310" y2="162" stroke="rgba(148,163,209,0.35)" stroke-width="1"></line>
+<sc-for list="{{ ltc.marks }}" as="mk"><line x1="{{ mk.x }}" y1="{{ mk.y1 }}" x2="{{ mk.x }}" y2="{{ mk.y2 }}" stroke="{{ mk.c }}" stroke-width="1.2" stroke-dasharray="4 3"></line><text x="{{ mk.tx }}" y="{{ mk.ly }}" text-anchor="middle" font-size="9" font-weight="700" fill="{{ mk.c }}">{{ mk.n }}</text></sc-for>
+<path d="{{ ltc.path }}" fill="none" stroke="#67E8F9" stroke-width="2" stroke-linejoin="round"></path>
+<sc-for list="{{ ltc.pts }}" as="pt"><circle cx="{{ pt.cx }}" cy="{{ pt.cy }}" r="4.5" fill="{{ pt.fill }}" stroke="#04111F" stroke-width="1.2"></circle></sc-for>
+<sc-for list="{{ ltc.yLab }}" as="yl"><text x="34" y="{{ yl.y }}" text-anchor="end" font-size="9" fill="#AEB9D4">{{ yl.t }}</text></sc-for>
+<sc-for list="{{ ltc.xLab }}" as="xl"><text x="{{ xl.x }}" y="178" text-anchor="{{ xl.a }}" font-size="9" fill="#AEB9D4">{{ xl.t }}</text></sc-for>
+</svg>
+<div style="font-size: 12px; line-height: 1.5; color: #AEB9D4;">Green band = the range from your latest lab report. Red dots = outside that range. Dashed lines = plans that started or stopped:</div>
+<sc-for list="{{ ltc.marks }}" as="mk"><div style="font-size: 12px; line-height: 1.4; color: {{ mk.c }};">{{ mk.t }}</div></sc-for>
+</div>
+</sc-if>
+<sc-if value="{{ ltQual }}" hint-placeholder-val="{{ false }}"><div style="font-size: 13px; color: #AEB9D4;">This result is a word (for example Negative or 1+), so it is shown as a list instead of a chart.</div></sc-if>
+<div style="padding: 12px 14px; border: 1px solid rgba(148,163,209,0.18); border-radius: 14px; background: rgba(255,255,255,0.05); display: flex; flex-direction: column; gap: 6px;">
+<div style="font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: #AEB9D4;">ALL RESULTS</div>
+<sc-for list="{{ ltc.rows }}" as="rw"><div style="display: flex; flex-direction: column; gap: 2px; padding: 6px 0; border-top: 1px solid rgba(148,163,209,0.12); font-size: 14px;"><div style="display: flex; justify-content: space-between; gap: 8px;"><span style="color: #AEB9D4;">{{ rw.d }}</span><span style="font-weight: 700;">{{ rw.v }}</span></div><span style="font-size: 12px; color: #8E9AB8;">Range on report: {{ rw.range }}</span><sc-if value="{{ rw.hasFlag }}"><span style="font-size: 12px; font-weight: 700; color: #F87171;">&#9888; {{ rw.flag }}</span></sc-if></div></sc-for>
+</div>
+<div style="font-size: 13px; line-height: 1.5; color: #FCD34D;">Please review your results with your medical provider. Ascendose only compares the numbers you entered; it does not interpret them.</div>
+</div>
+</sc-if>
+<sc-if value="{{ labFormOpen }}" hint-placeholder-val="{{ false }}">
+<div style="padding: 16px; border: 2px solid #22D3EE; border-radius: 14px; background: rgba(255,255,255,0.05); display: flex; flex-direction: column; gap: 10px;">
+<div style="font-size: 16px; font-weight: 600;">{{ labFormTitle }}</div>
+<div style="font-size: 13px; line-height: 1.5; color: #AEB9D4;">Copy each result, its unit and the normal range exactly as printed on your lab report. Leave anything you did not test blank. Ranges you enter are remembered for next time.</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;">
+<div style="display: flex; flex-direction: column; gap: 6px;"><label for="lfDate" style="font-size: 13px; font-weight: 600; color: #B4C0DA;">Date of the test</label><input id="lfDate" type="date" value="{{ lf.date }}" onChange="{{ onLfDate }}" style="height: 44px; box-sizing: border-box; padding: 0 10px; font-size: 16px; font-family: inherit; border: 1px solid rgba(148,163,209,0.35); border-radius: 12px; background: rgba(255,255,255,0.05); color: #E6EEFF;"></div>
+<div style="display: flex; flex-direction: column; gap: 6px;"><label for="lfLab" style="font-size: 13px; font-weight: 600; color: #B4C0DA;">Lab (optional)</label><input id="lfLab" type="text" value="{{ lf.lab }}" onChange="{{ onLfLab }}" placeholder="e.g. Quest" style="height: 44px; box-sizing: border-box; padding: 0 10px; font-size: 16px; font-family: inherit; border: 1px solid rgba(148,163,209,0.35); border-radius: 12px; background: rgba(255,255,255,0.05); color: #E6EEFF;"></div>
+</div>
+<sc-for list="{{ labFormGroups }}" as="lg">
+<div style="border: 1px solid rgba(148,163,209,0.22); border-radius: 12px; overflow: hidden;">
+<button type="button" onClick="{{ lg.toggle }}" aria-expanded="{{ lg.open }}" style="width: 100%; min-height: 48px; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 14px; border: none; background: rgba(255,255,255,0.04); color: #E6EEFF; font-size: 14px; font-weight: 700; text-align: left; cursor: pointer;"><span>{{ lg.title }}</span><span style="font-size: 12px; font-weight: 600; color: #67E8F9;">{{ lg.count }} {{ lg.arrow }}</span></button>
+<sc-for list="{{ lg.tests }}" as="lt2">
+<div style="display: flex; flex-direction: column; gap: 6px; padding: 10px 14px; border-top: 1px solid rgba(148,163,209,0.14);">
+<label for="{{ lt2.id }}" style="font-size: 14px; font-weight: 600;">{{ lt2.name }}</label>
+<sc-if value="{{ lt2.isN }}"><div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">
+<input id="{{ lt2.id }}" type="text" inputmode="decimal" value="{{ lt2.v }}" onChange="{{ lt2.onV }}" placeholder="result" aria-label="{{ lt2.name }} result" style="width: 92px; height: 42px; box-sizing: border-box; padding: 0 10px; font-size: 16px; font-family: inherit; border: 1px solid rgba(148,163,209,0.35); border-radius: 10px; background: rgba(255,255,255,0.05); color: #E6EEFF;">
+<input type="text" value="{{ lt2.u }}" onChange="{{ lt2.onU }}" placeholder="unit" aria-label="{{ lt2.name }} unit" style="width: 96px; height: 42px; box-sizing: border-box; padding: 0 8px; font-size: 14px; font-family: inherit; border: 1px solid rgba(148,163,209,0.25); border-radius: 10px; background: rgba(255,255,255,0.03); color: #E6EEFF;">
+<span style="font-size: 12px; color: #8E9AB8;">range</span>
+<input type="text" inputmode="decimal" value="{{ lt2.lo }}" onChange="{{ lt2.onLo }}" placeholder="low" aria-label="{{ lt2.name }} range low" style="width: 64px; height: 42px; box-sizing: border-box; padding: 0 8px; font-size: 15px; font-family: inherit; border: 1px solid rgba(148,163,209,0.25); border-radius: 10px; background: rgba(255,255,255,0.03); color: #E6EEFF;">
+<span style="color: #8E9AB8;">–</span>
+<input type="text" inputmode="decimal" value="{{ lt2.hi }}" onChange="{{ lt2.onHi }}" placeholder="high" aria-label="{{ lt2.name }} range high" style="width: 64px; height: 42px; box-sizing: border-box; padding: 0 8px; font-size: 15px; font-family: inherit; border: 1px solid rgba(148,163,209,0.25); border-radius: 10px; background: rgba(255,255,255,0.03); color: #E6EEFF;">
+</div></sc-if>
+<sc-if value="{{ lt2.isQ }}"><div style="display: flex; flex-wrap: wrap; gap: 6px;"><sc-for list="{{ lt2.opts }}" as="op"><button type="button" onClick="{{ op.pick }}" aria-pressed="{{ op.sel }}" style="min-height: 36px; padding: 0 10px; border-radius: 9px; border: 1px solid rgba(148,163,209,0.35); background: {{ op.bg }}; color: {{ op.fg }}; font-size: 13px; font-weight: 600; cursor: pointer;">{{ op.t }}</button></sc-for></div><div style="font-size: 12px; color: #8E9AB8;">Normal result printed on your report:</div><div style="display: flex; flex-wrap: wrap; gap: 6px;"><sc-for list="{{ lt2.okOpts }}" as="op"><button type="button" onClick="{{ op.pick }}" aria-pressed="{{ op.sel }}" style="min-height: 36px; padding: 0 10px; border-radius: 9px; border: 1px solid rgba(148,163,209,0.35); background: {{ op.bg }}; color: {{ op.fg }}; font-size: 13px; font-weight: 600; cursor: pointer;">{{ op.t }}</button></sc-for></div></sc-if>
+</div>
+</sc-for>
+</div>
+</sc-for>
+<div style="display: flex; flex-direction: column; gap: 6px; padding-top: 6px;">
+<span style="font-size: 13px; font-weight: 600; color: #B4C0DA;">A test not on the list</span>
+<div style="display: flex; flex-wrap: wrap; gap: 6px;"><input type="text" value="{{ lf.cName }}" onChange="{{ onLfCName }}" placeholder="Name on your report" aria-label="Name of the test" style="flex: 1 1 160px; height: 42px; box-sizing: border-box; padding: 0 10px; font-size: 15px; font-family: inherit; border: 1px solid rgba(148,163,209,0.35); border-radius: 10px; background: rgba(255,255,255,0.05); color: #E6EEFF;"><input type="text" value="{{ lf.cUnit }}" onChange="{{ onLfCUnit }}" placeholder="unit" aria-label="Unit of the test" style="width: 90px; height: 42px; box-sizing: border-box; padding: 0 8px; font-size: 15px; font-family: inherit; border: 1px solid rgba(148,163,209,0.35); border-radius: 10px; background: rgba(255,255,255,0.05); color: #E6EEFF;"><button type="button" onClick="{{ addCustom }}" style="min-height: 42px; padding: 0 14px; border: 1px solid #22D3EE; border-radius: 10px; background: transparent; color: #22D3EE; font-size: 14px; font-weight: 700; cursor: pointer;">+ Add test</button></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px;"><label for="lfNote" style="font-size: 13px; font-weight: 600; color: #B4C0DA;">Notes (optional)</label><input id="lfNote" type="text" value="{{ lf.note }}" onChange="{{ onLfNote }}" placeholder="e.g. fasting, 8 am" style="height: 44px; box-sizing: border-box; padding: 0 10px; font-size: 16px; font-family: inherit; border: 1px solid rgba(148,163,209,0.35); border-radius: 12px; background: rgba(255,255,255,0.05); color: #E6EEFF;"></div>
+<sc-if value="{{ hasLabErr }}"><div role="alert" style="font-size: 14px; font-weight: 600; color: #F87171;">{{ labErr }}</div></sc-if>
+<div style="display: flex; gap: 8px;"><button type="button" onClick="{{ saveLab }}" style="flex: 1 1 auto; min-height: 50px; border: none; border-radius: 12px; background: linear-gradient(135deg, #22D3EE, #818CF8); color: #04111F; font-size: 15px; font-weight: 700; cursor: pointer;">Save lab results</button><button type="button" onClick="{{ cancelLab }}" style="min-height: 50px; padding: 0 16px; border: 1px solid rgba(148,163,209,0.35); border-radius: 12px; background: transparent; color: #E6EEFF; font-size: 15px; font-weight: 600; cursor: pointer;">Cancel</button></div>
+</div>
+</sc-if>
+<sc-if value="{{ noLtNoForm }}" hint-placeholder-val="{{ true }}">
+<button type="button" onClick="{{ addLab }}" style="height: 52px; border: none; border-radius: 12px; background: linear-gradient(135deg, #22D3EE, #818CF8); color: #04111F; box-shadow: 0 6px 24px rgba(34,211,238,0.25); font-size: 15px; font-weight: 600; cursor: pointer;">+ Add lab results</button>
+<sc-if value="{{ hasLabMsg }}"><div role="status" style="font-size: 14px; font-weight: 600; color: #34D399;">{{ labMsg }}</div></sc-if>
+<sc-if value="{{ hasLabErr }}"><div role="alert" style="font-size: 14px; font-weight: 600; color: #F87171;">{{ labErr }}</div></sc-if>
+<sc-if value="{{ noLabs }}"><div style="padding: 16px; border: 1px solid rgba(148,163,209,0.18); border-radius: 14px; background: rgba(255,255,255,0.05); font-size: 14px; line-height: 1.55; color: #C9D2E6;">Keep your bloodwork and urine tests here: a baseline before you start, then each follow-up. Copy the results and the normal ranges from your lab report. Ascendose shows what went up or down since your last test, which results are outside your lab's own range, and which plans started or stopped in between. It does not interpret results. Review them with your medical provider.</div></sc-if>
+<sc-if value="{{ hasCompare }}">
+<div style="padding: 14px 16px; border: 1px solid rgba(148,163,209,0.18); border-radius: 14px; background: rgba(255,255,255,0.05); display: flex; flex-direction: column; gap: 8px;">
+<div style="font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: #67E8F9;">{{ cmpTitle }}</div>
+<sc-if value="{{ hasLabFlagLine }}"><div role="alert" style="font-size: 14px; font-weight: 700; color: #F87171;">&#9888; {{ labFlagLine }}</div></sc-if>
+<sc-for list="{{ labCompare }}" as="lc2"><button type="button" onClick="{{ lc2.open }}" style="display: flex; flex-direction: column; gap: 2px; padding: 8px 0; border: none; border-top: 1px solid rgba(148,163,209,0.12); background: transparent; color: #E6EEFF; text-align: left; cursor: pointer;"><span style="display: flex; justify-content: space-between; gap: 8px; width: 100%;"><span style="font-size: 14px; font-weight: 700;"><span style="color: #FCD34D;">{{ lc2.star }}</span> {{ lc2.name }}</span><span style="font-size: 14px; font-weight: 700;">{{ lc2.now }}</span></span><span style="font-size: 12px; color: #AEB9D4;">{{ lc2.was }}<sc-if value="{{ lc2.hasDiff }}"> · {{ lc2.diff }}</sc-if></span><span style="font-size: 12px; color: #8E9AB8;">{{ lc2.range }}</span><sc-if value="{{ lc2.hasFlag }}"><span style="font-size: 12px; font-weight: 700; color: #F87171;">&#9888; {{ lc2.flag }}</span></sc-if></button></sc-for>
+<sc-if value="{{ hasLabEvents }}"><div style="display: flex; flex-direction: column; gap: 3px; padding-top: 8px; border-top: 1px solid rgba(148,163,209,0.2);"><span style="font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: #AEB9D4;">YOUR PLANS BETWEEN THESE TWO TESTS</span><sc-for list="{{ labEvents }}" as="ev"><span style="font-size: 13px; color: #E6EEFF;">• {{ ev.t }}</span></sc-for></div></sc-if>
+<div style="font-size: 13px; line-height: 1.5; color: #FCD34D;">Please review these results with your medical provider. Ascendose compares the numbers you entered with the range printed on your own lab report. It does not say what a change means or what caused it.</div>
+<div style="font-size: 12px; color: #8E9AB8;">Tap a test for its chart and history. Tests you watch (★) are listed first; open a test to watch it.</div>
+</div>
+</sc-if>
+<sc-if value="{{ hasLabs }}">
+<div style="padding: 14px 16px; border: 1px solid rgba(148,163,209,0.18); border-radius: 14px; background: rgba(255,255,255,0.05); display: flex; flex-direction: column; gap: 8px;">
+<div style="font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: #AEB9D4;">ALL YOUR LABS</div>
+<sc-for list="{{ labHist }}" as="lh"><div style="display: flex; flex-direction: column; gap: 6px; padding: 8px 0; border-top: 1px solid rgba(148,163,209,0.12);">
+<span style="font-size: 15px; font-weight: 700;">{{ lh.title }}</span><span style="font-size: 13px; color: #AEB9D4;">{{ lh.info }}</span><sc-if value="{{ lh.hasNote }}"><span style="font-size: 13px; color: #C9D2E6;">{{ lh.note }}</span></sc-if>
+<sc-for list="{{ lh.photos }}" as="ph"><div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;"><sc-if value="{{ ph.has }}"><a href="{{ ph.href }}" target="_blank" rel="noopener" style="color: #67E8F9; font-size: 14px; font-weight: 600;">Open {{ ph.name }}</a></sc-if><span style="font-size: 12px; color: #8E9AB8;">{{ ph.info }}</span><button type="button" onClick="{{ ph.remove }}" style="min-height: 34px; padding: 0 10px; border: 1px solid rgba(248,113,113,0.5); border-radius: 8px; background: transparent; color: #F87171; font-size: 12px; font-weight: 600; cursor: pointer;">{{ ph.delLabel }}</button></div></sc-for>
+<div style="display: flex; flex-wrap: wrap; gap: 8px;"><button type="button" onClick="{{ lh.edit }}" style="min-height: 40px; padding: 0 12px; border: 1px solid rgba(148,163,209,0.35); border-radius: 10px; background: transparent; color: #E6EEFF; font-size: 13px; font-weight: 600; cursor: pointer;">Edit</button><button type="button" onClick="{{ lh.addPhoto }}" style="min-height: 40px; padding: 0 12px; border: 1px solid #22D3EE; border-radius: 10px; background: transparent; color: #22D3EE; font-size: 13px; font-weight: 600; cursor: pointer;">+ Photo or PDF of the report</button><button type="button" onClick="{{ lh.remove }}" style="min-height: 40px; padding: 0 12px; border: 1px solid rgba(248,113,113,0.5); border-radius: 10px; background: transparent; color: #F87171; font-size: 13px; font-weight: 600; cursor: pointer;">{{ lh.delLabel }}</button></div>
+</div></sc-for>
+<div style="font-size: 12px; line-height: 1.5; color: #8E9AB8;">{{ labPhotoNote }}</div>
+</div>
+</sc-if>
+</sc-if>
+</div>
+</sc-if>
 <sc-if value="{{ isBody }}" hint-placeholder-val="{{ false }}">
 <div style="display: flex; flex-direction: column; gap: 14px;">
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; padding: 4px; border-radius: 12px; background: rgba(129,140,248,0.14);"><sc-for list="{{ btabs }}" as="bt" hint-placeholder-count="2"><button type="button" onClick="{{ bt.pick }}" style="min-height: 44px; border: none; border-radius: 9px; background: {{ bt.bg }}; color: {{ bt.fg }}; font-size: 14px; font-weight: 600; cursor: pointer;">{{ bt.label }}</button></sc-for></div>
 <button type="button" onClick="{{ openBForm }}" style="height: 52px; border: none; border-radius: 12px; background: linear-gradient(135deg, #22D3EE, #818CF8); color: #04111F; box-shadow: 0 6px 24px rgba(34,211,238,0.25); font-size: 15px; font-weight: 600; cursor: pointer;">+ Add this week's measurements</button>
 <sc-if value="{{ bFormOpen }}" hint-placeholder-val="{{ false }}">
 <div style="padding: 16px; border: 2px solid #22D3EE; border-radius: 14px; background: rgba(255,255,255,0.05); display: flex; flex-direction: column; gap: 10px;">
@@ -1700,7 +1799,7 @@ h1,h2{letter-spacing:-0.02em}
 (function () {
   'use strict';
   var STORE_KEY = 'compoundAtlas.v1';
-  var KEEP = ['plans', 'done', 'nextId', 'body', 'bunit', 'bsex', 'bheight', 'bmig', 'calcRoute', 'protocols', 'bbirth', 'bsfp', 'termsAt', 'sov', 'guides', 'snooze', 'reports', 'btin', 'b2x', 'sheets'];
+  var KEEP = ['plans', 'done', 'nextId', 'body', 'bunit', 'bsex', 'bheight', 'bmig', 'calcRoute', 'protocols', 'bbirth', 'bsfp', 'termsAt', 'sov', 'guides', 'snooze', 'reports', 'btin', 'b2x', 'sheets', 'labs', 'labCustom', 'labWatch', 'labSeen'];
   function DCLogic(props) { this.props = props || {}; this.state = {}; }
   var localTs = 0;
   try { localTs = +localStorage.getItem(STORE_KEY + '.ts') || 0; } catch (e) {}
@@ -2032,6 +2131,17 @@ h1,h2{letter-spacing:-0.02em}
       B.push(h3('BMI and body fat by entry'));
       B.push(table([2520, 2520, 2520, 2520], ['Date'].concat(b.compCols), b.compRows, { align: [null, 'center', 'center', 'center'] }));
     } else B.push(small('No body measurements entered.', { after: 160 }));
+
+    var lb = R.labs;
+    B.push(h1('Lab results'));
+    if (lb) {
+      B.push(small('Latest lab: ' + lb.latest + (lb.prev ? ' · compared with ' + lb.prev : '') + '. Ranges are the ones printed on the user\'s own lab reports. The app compares numbers only; it does not interpret them. Review results with your medical provider.', { after: 120 }));
+      B.push(table([2300, 1500, 2100, 1500, 1500, 1180], ['Test', 'Latest', 'Previous', 'Change', 'Lab range', 'Note'], lb.cmp.map(function (r) { return [{ t: r[0], b: true }, { t: r[1], b: true }, r[2], r[3], r[4], { t: r[5], color: r[5] ? 'B91C1C' : null }]; })));
+      if (lb.events.length) { B.push(h3('Plans between the last two labs')); lb.events.forEach(function (e) { B.push(para('•  ' + e, { sz: 19, after: 40 })); }); B.push(para('', { after: 80 })); }
+      B.push(h3('All results (last ' + lb.cols.length + ' labs)'));
+      var lw = Math.floor(7400 / lb.cols.length);
+      B.push(table([2680].concat(lb.cols.map(function () { return lw; })), ['Test'].concat(lb.cols), lb.all, { boldFirst: true, align: [null].concat(lb.cols.map(function () { return 'center'; })) }));
+    } else B.push(small('No lab results entered.', { after: 160 }));
 
     B.push(h1('Methods and sources'));
     R.methods.forEach(function (m) { B.push(para('•  ' + m, { sz: 18, color: '334155', after: 60 })); });
@@ -4172,6 +4282,297 @@ class Component extends window.DCLogic {
       blendSumNote: s.blendOn ? (blendSum > 0 ? 'Total in vial = ' + r(blendSum, 3) + ' mg (filled in above). Vendors often label blends by mg of EACH part; check your label.' : 'Enter the mg of each part from your vial label. The total fills in above.') : '',
       showMath: !!s.showMath, mathLabel: s.showMath ? 'Hide the math' : 'Show the math', toggleMath: function () { self.setState({ showMath: !s.showMath }); }, mathLines: mathLines
     };
+    // ---- Bloodwork & labs (v42): the user's own results, their lab's own ranges; no interpretation ----
+    var LQ = {
+      dip: ['Negative', 'Trace', '1+', '2+', '3+', '4+'],
+      pn: ['Negative', 'Positive'],
+      col: ['Pale yellow', 'Yellow', 'Dark yellow', 'Straw', 'Amber', 'Colorless', 'Red', 'Brown', 'Other'],
+      clr: ['Clear', 'Slightly cloudy', 'Cloudy', 'Turbid'],
+      few: ['None seen', 'Rare', 'Few', 'Moderate', 'Many'],
+      cast: ['None seen', 'Hyaline', 'Granular', 'Other']
+    };
+    var LG = [
+      ['cmp', 'CMP (Comprehensive Metabolic Panel)', [
+        ['glu', 'Glucose', 'mg/dL'], ['bun', 'BUN', 'mg/dL'], ['cre', 'Creatinine', 'mg/dL'], ['egfr', 'eGFR', 'mL/min/1.73m²'], ['bcr', 'BUN/Creatinine ratio', '', 'calc'],
+        ['na', 'Sodium', 'mmol/L'], ['k', 'Potassium', 'mmol/L'], ['cl', 'Chloride', 'mmol/L'], ['co2', 'CO2 (bicarbonate)', 'mmol/L'], ['ca', 'Calcium', 'mg/dL'],
+        ['tp', 'Total protein', 'g/dL'], ['alb', 'Albumin', 'g/dL'], ['glob', 'Globulin', 'g/dL', 'calc'], ['agr', 'A/G ratio', '', 'calc'],
+        ['alt', 'ALT', 'U/L'], ['ast', 'AST', 'U/L'], ['alp', 'Alkaline phosphatase (ALP)', 'U/L'], ['bili', 'Total bilirubin', 'mg/dL']]],
+      ['cbc', 'CBC with differential', [
+        ['rbc', 'RBC', 'x10⁶/µL'], ['hgb', 'Hemoglobin', 'g/dL'], ['hct', 'Hematocrit', '%'], ['mcv', 'MCV', 'fL'], ['mch', 'MCH', 'pg'], ['mchc', 'MCHC', 'g/dL'], ['rdw', 'RDW', '%'],
+        ['wbc', 'WBC', 'x10³/µL'], ['neu', 'Neutrophils', '%'], ['neua', 'Neutrophils (absolute)', 'x10³/µL'], ['lym', 'Lymphocytes', '%'], ['lyma', 'Lymphocytes (absolute)', 'x10³/µL'],
+        ['mon', 'Monocytes', '%'], ['mona', 'Monocytes (absolute)', 'x10³/µL'], ['eos', 'Eosinophils', '%'], ['eosa', 'Eosinophils (absolute)', 'x10³/µL'], ['bas', 'Basophils', '%'], ['basa', 'Basophils (absolute)', 'x10³/µL'],
+        ['plt', 'Platelets', 'x10³/µL'], ['mpv', 'MPV', 'fL']]],
+      ['lip', 'Lipid panel', [
+        ['tc', 'Total cholesterol', 'mg/dL'], ['ldl', 'LDL', 'mg/dL'], ['hdl', 'HDL', 'mg/dL'], ['tg', 'Triglycerides', 'mg/dL'], ['nhdl', 'Non-HDL cholesterol', 'mg/dL', 'calc'], ['vldl', 'VLDL', 'mg/dL'],
+        ['apob', 'ApoB', 'mg/dL'], ['lpa', 'Lp(a)', 'nmol/L']]],
+      ['sug', 'Blood sugar and insulin', [
+        ['a1c', 'Hemoglobin A1c', '%'], ['ins', 'Fasting insulin', 'µIU/mL'], ['cpep', 'C-peptide', 'ng/mL'], ['homa', 'HOMA-IR', '', 'calc']]],
+      ['hor', 'Sex hormones (men and women)', [
+        ['tt', 'Total testosterone', 'ng/dL'], ['ft', 'Free testosterone', 'pg/mL'], ['shbg', 'SHBG', 'nmol/L'], ['e2', 'Estradiol (sensitive)', 'pg/mL'],
+        ['lh', 'LH', 'mIU/mL'], ['fsh', 'FSH', 'mIU/mL'], ['prl', 'Prolactin', 'ng/mL'], ['dheas', 'DHEA-S', 'µg/dL']]],
+      ['psa', 'Prostate (men)', [['psat', 'PSA (total)', 'ng/mL'], ['psaf', 'PSA (free)', 'ng/mL']]],
+      ['fem', 'Women', [['prog', 'Progesterone', 'ng/mL']]],
+      ['thy', 'Thyroid', [['tsh', 'TSH', 'µIU/mL'], ['ft4', 'Free T4', 'ng/dL'], ['ft3', 'Free T3', 'pg/mL'], ['rt3', 'Reverse T3', 'ng/dL'], ['tpo', 'TPO antibodies', 'IU/mL']]],
+      ['gh', 'Growth hormone axis', [['igf1', 'IGF-1', 'ng/mL'], ['igfbp3', 'IGFBP-3', 'mg/L']]],
+      ['pan', 'Pancreas', [['lip', 'Lipase', 'U/L'], ['amy', 'Amylase', 'U/L']]],
+      ['lk', 'Extra liver and kidney', [['ggt', 'GGT', 'U/L'], ['cysc', 'Cystatin C', 'mg/L'], ['uric', 'Uric acid', 'mg/dL']]],
+      ['iron', 'Iron panel', [['fe', 'Iron', 'µg/dL'], ['tibc', 'TIBC', 'µg/dL'], ['tsat', 'Transferrin saturation', '%'], ['ferr', 'Ferritin', 'ng/mL']]],
+      ['min', 'Minerals', [['mg', 'Magnesium (serum)', 'mg/dL'], ['rbcmg', 'Magnesium (RBC)', 'mg/dL'], ['zn', 'Zinc', 'µg/dL'], ['cu', 'Copper', 'µg/dL'], ['cer', 'Ceruloplasmin', 'mg/dL'], ['phos', 'Phosphorus', 'mg/dL']]],
+      ['vit', 'Vitamins', [['vd', 'Vitamin D (25-OH)', 'ng/mL'], ['b12', 'Vitamin B12', 'pg/mL'], ['fol', 'Folate', 'ng/mL']]],
+      ['inf', 'Inflammation and heart', [['crp', 'hs-CRP', 'mg/L'], ['hcy', 'Homocysteine', 'µmol/L'], ['esr', 'ESR', 'mm/h']]],
+      ['adr', 'Adrenal', [['cort', 'Cortisol (AM)', 'µg/dL']]],
+      ['ua', 'Urinalysis (urine test)', [
+        ['ucol', 'Color', '', 'q:col'], ['uclr', 'Appearance (clarity)', '', 'q:clr'], ['usg', 'Specific gravity', ''], ['uph', 'pH', ''],
+        ['uprot', 'Protein', '', 'q:dip'], ['uglu', 'Glucose', '', 'q:dip'], ['uket', 'Ketones', '', 'q:dip'], ['ublood', 'Blood', '', 'q:dip'], ['ubili', 'Bilirubin', '', 'q:dip'],
+        ['uuro', 'Urobilinogen', 'mg/dL'], ['unit', 'Nitrite', '', 'q:pn'], ['ule', 'Leukocyte esterase', '', 'q:dip'],
+        ['uwbc', 'WBC', '/hpf'], ['urbc', 'RBC', '/hpf'], ['usq', 'Squamous epithelial cells', '', 'q:few'], ['ubact', 'Bacteria', '', 'q:few'], ['ucast', 'Casts', '', 'q:cast'], ['ucry', 'Crystals', '', 'q:few'],
+        ['ualb', 'Urine albumin', 'mg/L'], ['ucre', 'Urine creatinine', 'mg/dL'], ['uacr', 'Urine albumin/creatinine ratio (UACR)', 'mg/g']]],
+      ['vit2', 'Vitals', [['sbp', 'Blood pressure, systolic', 'mmHg'], ['dbp', 'Blood pressure, diastolic', 'mmHg'], ['hr', 'Resting heart rate', 'bpm']]]
+    ];
+    var labs = (s.labs || []).slice().sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
+    var labCustom = s.labCustom || [];
+    var LT = {}, LTorder = [];
+    LG.forEach(function (g) { g[2].forEach(function (t) { var q = t[3] && t[3].indexOf('q:') === 0 ? t[3].slice(2) : null; LT[t[0]] = { id: t[0], name: t[1], unit: t[2], calc: t[3] === 'calc', q: q, g: g[0], gName: g[1] }; LTorder.push(t[0]); }); });
+    labCustom.forEach(function (c) { LT[c.id] = { id: c.id, name: c.name, unit: c.unit || '', calc: false, q: null, g: 'cus', gName: 'Your own tests' }; LTorder.push(c.id); });
+    var labWatch = s.labWatch || [];
+    var lnum = function (x) { var n = parseFloat(String(x == null ? '' : x).replace(',', '.')); return isFinite(n) ? n : null; };
+    var lfmt = function (n) { if (n == null) return ''; var a = Math.abs(n); return String(a >= 100 ? Math.round(n * 10) / 10 : a >= 10 ? Math.round(n * 100) / 100 : Math.round(n * 1000) / 1000); };
+    var lDate = function (k) { var d = parseKey(k); return d ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : k; };
+    var lRange = function (r) { if (!r) return ''; var t = LT[r.t] || {}; if (t.q) return r.ok ? 'Normal on report: ' + r.ok : ''; var lo = lnum(r.lo), hi = lnum(r.hi); if (lo == null && hi == null) return ''; return (lo != null && hi != null ? lfmt(lo) + '–' + lfmt(hi) : lo != null ? '≥ ' + lfmt(lo) : '≤ ' + lfmt(hi)) + (r.u ? ' ' + r.u : ''); };
+    // flag only against the range the user copied from their own report
+    var lFlag = function (r) {
+      if (!r) return ''; var t = LT[r.t] || {};
+      if (t.q) return r.ok && r.v && r.v !== r.ok ? 'Not the normal result on your report (' + r.ok + ')' : '';
+      var v = lnum(r.v), lo = lnum(r.lo), hi = lnum(r.hi); if (v == null) return '';
+      if (lo != null && v < lo) return 'Below the range on your lab report';
+      if (hi != null && v > hi) return 'Above the range on your lab report';
+      return '';
+    };
+    var lValOf = function (lab, id) { var r = lab && lab.vals && lab.vals[id]; if (!r || r.v === undefined || r.v === null || String(r.v).trim() === '') return null; return { t: id, v: String(r.v).trim(), u: r.u != null ? r.u : (LT[id] ? LT[id].unit : ''), lo: r.lo, hi: r.hi, ok: r.ok, calc: r.calc }; };
+    var lValTxt = function (r) { return r ? r.v + (r.u ? ' ' + r.u : '') : '—'; };
+    var lDiff = function (a, b) {
+      if (!a || !b) return '';
+      var t = LT[a.t] || {};
+      if (t.q) return a.v === b.v ? 'same' : b.v + ' → ' + a.v;
+      var x = lnum(a.v), y = lnum(b.v); if (x == null || y == null) return '';
+      if ((a.u || '') !== (b.u || '')) return 'units differ (' + (b.u || 'none') + ' → ' + (a.u || 'none') + '), not compared';
+      var d = x - y; if (Math.abs(d) < 1e-9) return 'same';
+      var pct = y !== 0 ? Math.round(Math.abs(d / y) * 1000) / 10 : null;
+      return (d > 0 ? 'up ' : 'down ') + lfmt(Math.abs(d)) + (pct != null ? ' (' + pct + '%)' : '');
+    };
+    // what happened to the plans between two lab dates (timeline facts only, no cause implied)
+    var lEvents = function (k0, k1) {
+      var ev = [];
+      plans.forEach(function (p) {
+        var nm = p.name;
+        if (p.start > k0 && p.start <= k1) ev.push({ k: p.start, t: 'Started ' + nm });
+        if (p.stop && p.stop > k0 && p.stop <= k1) ev.push({ k: p.stop, t: 'Stopped ' + nm });
+        var ch = {}; (p.changes || []).forEach(function (c) { if (c.from > k0 && c.from <= k1) ch[c.from] = 1; });
+        var ck = Object.keys(ch).sort();
+        if (ck.length === 1) ev.push({ k: ck[0], t: nm + ': dose, vial or schedule changed' });
+        else if (ck.length > 1) ev.push({ k: ck[0], t: nm + ': dose, vial or schedule changed ' + ck.length + ' times', rng: fmtShort(parseKey(ck[0])) + ' – ' + fmtShort(parseKey(ck[ck.length - 1])) });
+      });
+      return ev.sort(function (a, b) { return a.k < b.k ? -1 : 1; }).map(function (e) { return { t: e.t + ' (' + (e.rng || fmtShort(parseKey(e.k))) + ')', k: e.k }; });
+    };
+    var L1 = labs.length ? labs[labs.length - 1] : null, L0 = labs.length > 1 ? labs[labs.length - 2] : null;
+    var setLS = function (patch) { self.setState(patch); };
+    var toggleWatch = function (id) { return function () { var w = (self.state.labWatch || []).slice(), i = w.indexOf(id); if (i >= 0) w.splice(i, 1); else w.push(id); setLS({ labWatch: w }); }; };
+    var labCompare = (function () {
+      if (!L1) return [];
+      var rows = [];
+      LTorder.forEach(function (id) {
+        var a = lValOf(L1, id); if (!a) return;
+        var b = null, bLab = null;
+        for (var j = labs.length - 2; j >= 0; j--) { var bb = lValOf(labs[j], id); if (bb) { b = bb; bLab = labs[j]; break; } }
+        var fl = lFlag(a), df = lDiff(a, b), w = labWatch.indexOf(id) >= 0;
+        rows.push({ id: id, name: LT[id].name, now: lValTxt(a) + (a.calc ? ' (calculated)' : ''), was: b ? 'was ' + lValTxt(b) + ' on ' + fmtShort(parseKey(bLab.date)) : 'first result', diff: df, hasDiff: !!df && df !== 'same',
+          range: lRange(a) ? (LT[id].q ? lRange(a) : 'Your lab\'s range: ' + lRange(a)) : 'No range entered', flag: fl, hasFlag: !!fl, watched: w, star: w ? '★ ' : '',
+          rank: (w ? 0 : 10) + (fl ? 0 : 2) + (df && df !== 'same' ? 0 : 1), open: (function (tid) { return function () { setLS({ labTest: tid }); }; })(id) });
+      });
+      return rows.sort(function (x, y) { return x.rank - y.rank; });
+    })();
+    var labFlagN = labCompare.filter(function (r) { return r.hasFlag; }).length;
+    // trend chart for one test (SVG built from data; plan start/stop lines in the plan's color)
+    var labChart = function (id) {
+      var pts = [];
+      labs.forEach(function (lb) { var r = lValOf(lb, id); if (r) pts.push({ k: lb.date, r: r, n: lnum(r.v) }); });
+      var t = LT[id] || {}, numPts = pts.filter(function (p) { return p.n != null; });
+      var W2 = 320, H2 = 190, L = 38, R = 10, T = 40, Bm = 28;
+      var out = { has: numPts.length > 0 && !t.q, W: W2, H: H2, pts: [], band: null, hasBand: false, path: '', marks: [], yLab: [], xLab: [], rows: [] };
+      out.rows = pts.slice().reverse().map(function (p) { var fl = lFlag(p.r); return { d: lDate(p.k), v: lValTxt(p.r), range: lRange(p.r) || '—', flag: fl, hasFlag: !!fl }; });
+      if (!out.has) return out;
+      var d0 = parseKey(numPts[0].k).getTime(), d1 = parseKey(numPts[numPts.length - 1].k).getTime();
+      if (d1 === d0) { d0 -= 15 * 864e5; d1 += 15 * 864e5; }
+      var last = numPts[numPts.length - 1].r, lo = lnum(last.lo), hi = lnum(last.hi);
+      var ys = numPts.map(function (p) { return p.n; }); if (lo != null) ys.push(lo); if (hi != null) ys.push(hi);
+      var y0 = Math.min.apply(null, ys), y1 = Math.max.apply(null, ys); if (y1 === y0) { y0 -= 1; y1 += 1; } var pad = (y1 - y0) * 0.12; y0 -= pad; y1 += pad;
+      var X = function (ms) { return L + (ms - d0) / (d1 - d0) * (W2 - L - R); }, Y = function (v) { return T + (y1 - v) / (y1 - y0) * (H2 - T - Bm); };
+      if (lo != null || hi != null) { var bt = Y(hi != null ? hi : y1), bb2 = Y(lo != null ? lo : y0); out.band = { x: L, y: Math.round(bt * 10) / 10, w: W2 - L - R, h: Math.max(1, Math.round((bb2 - bt) * 10) / 10) }; out.hasBand = true; }
+      out.pts = numPts.map(function (p) { var fl = lFlag(p.r); return { cx: Math.round(X(parseKey(p.k).getTime()) * 10) / 10, cy: Math.round(Y(p.n) * 10) / 10, fill: fl ? '#F87171' : '#67E8F9' }; });
+      out.path = out.pts.map(function (p, i) { return (i ? 'L' : 'M') + p.cx + ' ' + p.cy; }).join(' ');
+      out.yLab = [y1 - pad, y0 + pad].map(function (v) { return { y: Math.round(Y(v) * 10) / 10 + 3, t: lfmt(v) }; });
+      out.xLab = [{ x: L, t: fmtShort(new Date(d0)), a: 'start' }, { x: W2 - R, t: fmtShort(new Date(d1)), a: 'end' }];
+      var mk = []; plans.forEach(function (p) { [[p.start, 'start'], [p.stop, 'stop']].forEach(function (e2) { if (!e2[0]) return; var ms = parseKey(e2[0]).getTime(); if (ms >= d0 && ms <= d1) mk.push({ ms: ms, c: COLORS[p.color], t: (e2[1] === 'start' ? 'Started ' : 'Stopped ') + p.name + ' (' + fmtShort(parseKey(e2[0])) + ')' }); }); });
+      mk.sort(function (a, b) { return a.ms - b.ms; });
+      var lastX = -99, row = 0; out.marks = mk.map(function (m, i) { var x = Math.round(X(m.ms) * 10) / 10; row = x - lastX < 11 ? (row + 1) % 3 : 0; lastX = x; return { x: x, y1: 36, ly: 10 + row * 11, y2: H2 - Bm, c: m.c, n: String(i + 1), tx: x, t: (i + 1) + '. ' + m.t }; });
+      return out;
+    };
+    // ---- lab form ----
+    var lf = s.labF || null;
+    var setLF = function (patch) { var nf = {}; for (var k in self.state.labF) nf[k] = self.state.labF[k]; for (var k2 in patch) nf[k2] = patch[k2]; self.setState({ labF: nf, labErr: '' }); };
+    var setLV = function (id, key, val) { var cur = self.state.labF, vals = {}; for (var k in cur.vals) vals[k] = cur.vals[k]; var r = {}; for (var k3 in (vals[id] || {})) r[k3] = vals[id][k3]; r[key] = val; vals[id] = r; setLF({ vals: vals }); };
+    var prevRange = function (id) { for (var j = labs.length - 1; j >= 0; j--) { var r = labs[j].vals && labs[j].vals[id]; if (r && (r.lo || r.hi || r.ok || r.u)) return r; } return null; };
+    var openLabForm = function (lab) {
+      return function () {
+        var vals = {};
+        if (lab) { for (var k in lab.vals) { var r = lab.vals[k], c = {}; for (var k2 in r) c[k2] = r[k2]; vals[k] = c; } }
+        self.setState({ labF: { id: lab ? lab.id : null, date: lab ? lab.date : todayKey, lab: lab ? lab.lab || '' : '', note: lab ? lab.note || '' : '', vals: vals, open: null, cName: '', cUnit: '' }, labErr: '', labTest: null });
+        setTimeout(function () { var el = document.getElementById('mainScroll'); if (el) el.scrollTop = 0; }, 30);
+      };
+    };
+    var labFormGroups = lf ? LG.concat(labCustom.length ? [['cus', 'Your own tests', labCustom.map(function (c) { return [c.id, c.name, c.unit || '']; })]] : []).map(function (g) {
+      var open = lf.open === g[0];
+      var filled = g[2].filter(function (t) { var r = lf.vals[t[0]]; return r && r.v != null && String(r.v).trim() !== ''; }).length;
+      return { title: g[1], count: filled ? filled + ' entered' : '', open: open, arrow: open ? '▴' : '▾',
+        toggle: function () { setLF({ open: open ? null : g[0] }); },
+        tests: !open ? [] : g[2].map(function (t) {
+          var id = t[0], T2 = LT[id], r = lf.vals[id] || {}, pr = prevRange(id), q = T2.q;
+          var u = r.u != null ? r.u : (pr && pr.u != null ? pr.u : T2.unit);
+          return { id: 'lv_' + id, name: T2.name + (T2.calc ? ' (fills in if left blank)' : ''), isQ: !!q, isN: !q,
+            v: r.v || '', u: u, lo: r.lo != null ? r.lo : (pr && pr.lo != null ? pr.lo : ''), hi: r.hi != null ? r.hi : (pr && pr.hi != null ? pr.hi : ''),
+            opts: q ? LQ[q].map(function (o) { var on = r.v === o; return { t: o, sel: on, bg: on ? 'linear-gradient(135deg, #22D3EE, #818CF8)' : 'rgba(255,255,255,0.05)', fg: on ? '#04111F' : '#E6EEFF', pick: function () { setLV(id, 'v', on ? '' : o); } }; }) : [],
+            okOpts: q ? LQ[q].map(function (o) { var cur = r.ok != null ? r.ok : (pr && pr.ok); var on = cur === o; return { t: o, sel: on, bg: on ? 'rgba(52,211,153,0.25)' : 'rgba(255,255,255,0.03)', fg: on ? '#34D399' : '#AEB9D4', pick: function () { setLV(id, 'ok', on ? '' : o); } }; }) : [],
+            onV: function (e) { setLV(id, 'v', e.target.value); }, onU: function (e) { setLV(id, 'u', e.target.value); },
+            onLo: function (e) { setLV(id, 'lo', e.target.value); }, onHi: function (e) { setLV(id, 'hi', e.target.value); }, onOk: function (e) { setLV(id, 'ok', e.target.value); } };
+        }) };
+    }) : [];
+    var saveLab = function () {
+      var f2 = self.state.labF; if (!f2) return;
+      if (!f2.date) { self.setState({ labErr: 'Pick the date of the test (the date the blood or urine was taken).' }); return; }
+      var vals = {}, any = false;
+      for (var id in f2.vals) {
+        var r = f2.vals[id] || {}, v = r.v != null ? String(r.v).trim() : '';
+        if (!v) continue;
+        var pr = prevRange(id), T2 = LT[id] || { unit: '' };
+        var u = r.u != null ? r.u : (pr && pr.u != null ? pr.u : T2.unit);
+        vals[id] = { v: v, u: u, lo: r.lo != null ? r.lo : (pr && pr.lo != null ? pr.lo : ''), hi: r.hi != null ? r.hi : (pr && pr.hi != null ? pr.hi : ''), ok: r.ok != null ? r.ok : (pr && pr.ok ? pr.ok : '') };
+        any = true;
+      }
+      if (!any) { self.setState({ labErr: 'Enter at least one result.' }); return; }
+      // calculated values: only when blank and only when the units are the standard US ones
+      var N = function (k, unit) { var r = vals[k]; return r && (r.u || '') === unit ? lnum(r.v) : null; };
+      var put = function (k, val, unit) { if (vals[k] || val == null || !isFinite(val)) return; var pr = prevRange(k); vals[k] = { v: String(Math.round(val * 100) / 100), u: unit, lo: pr && pr.lo || '', hi: pr && pr.hi || '', ok: '', calc: true }; };
+      var tp = N('tp', 'g/dL'), al = N('alb', 'g/dL');
+      if (tp != null && al != null) put('glob', tp - al, 'g/dL');
+      var gl = vals.glob ? lnum(vals.glob.v) : null; if (al != null && gl) put('agr', al / gl, '');
+      var bu = N('bun', 'mg/dL'), cr = N('cre', 'mg/dL'); if (bu != null && cr) put('bcr', bu / cr, '');
+      var tc = N('tc', 'mg/dL'), hd = N('hdl', 'mg/dL'); if (tc != null && hd != null) put('nhdl', tc - hd, 'mg/dL');
+      var gu = N('glu', 'mg/dL'), inz = N('ins', 'µIU/mL'); if (gu != null && inz != null) put('homa', gu * inz / 405, '');
+      var rec = { id: f2.id || ('lab' + Date.now()), date: f2.date, lab: String(f2.lab || '').trim(), note: String(f2.note || '').trim(), vals: vals };
+      var old = (self.state.labs || []).filter(function (x) { return x.id === rec.id; })[0]; if (old && old.photos) rec.photos = old.photos;
+      var nl = (self.state.labs || []).filter(function (x) { return x.id !== rec.id; }).concat([rec]);
+      self.setState({ labs: nl, labF: null, labErr: '', labMsg: 'Saved lab results for ' + lDate(rec.date) + '.' });
+    };
+    var addCustom = function () {
+      var f2 = self.state.labF, nm = String(f2.cName || '').trim(); if (!nm) { self.setState({ labErr: 'Type the name of the test as it is on your report.' }); return; }
+      var id = 'c' + Date.now(), nc = (self.state.labCustom || []).concat([{ id: id, name: nm, unit: String(f2.cUnit || '').trim() }]);
+      self.setState({ labCustom: nc }); setLF({ cName: '', cUnit: '', open: 'cus' });
+    };
+    // ---- report photos: Claude app = file storage (synced); website = this phone only (IndexedDB) ----
+    var LDB = window.__labDB || (window.__labDB = (function () {
+      var dbp = null;
+      var db = function () { if (!dbp) dbp = new Promise(function (res, rej) { try { var rq = indexedDB.open('ascendose-files', 1); rq.onupgradeneeded = function () { rq.result.createObjectStore('files'); }; rq.onsuccess = function () { res(rq.result); }; rq.onerror = function () { rej(rq.error); }; } catch (e) { rej(e); } }); return dbp; };
+      var tx = function (mode, fn) { return db().then(function (d) { return new Promise(function (res, rej) { var t = d.transaction('files', mode), st = t.objectStore('files'), out = fn(st); t.oncomplete = function () { res(out && out.result); }; t.onerror = function () { rej(t.error); }; }); }); };
+      return { put: function (k, v) { return tx('readwrite', function (st) { st.put(v, k); }); }, get: function (k) { return tx('readonly', function (st) { return st.get(k); }); }, del: function (k) { return tx('readwrite', function (st) { st.delete(k); }); }, clear: function () { return tx('readwrite', function (st) { st.clear(); }); }, urls: {} };
+    })());
+    var shrink = function (file) {
+      return new Promise(function (res, rej) {
+        if (!/^image\//.test(file.type || '')) { res(file); return; }
+        var url = URL.createObjectURL(file), img = new Image();
+        img.onload = function () { var m = 1800, w = img.naturalWidth, h = img.naturalHeight, sc = Math.min(1, m / Math.max(w, h)); var c = document.createElement('canvas'); c.width = Math.round(w * sc); c.height = Math.round(h * sc); c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url); c.toBlob(function (b) { b ? res(b) : rej(new Error('shrink')); }, 'image/jpeg', 0.82); };
+        img.onerror = function () { URL.revokeObjectURL(url); rej(new Error('img')); };
+        img.src = url;
+      });
+    };
+    var onLabPhoto = function (e) {
+      var f = e.target.files && e.target.files[0], lid = window.__labPhotoFor; try { e.target.value = ''; } catch (x) {}
+      if (!f || !lid) return;
+      var isPdf = /pdf$/i.test(f.name) || f.type === 'application/pdf';
+      if (!isPdf && !/^image\//.test(f.type || '')) { self.setState({ labErr: 'Use a photo or a PDF of the lab report.' }); return; }
+      if (f.size > 20 * 1024 * 1024) { self.setState({ labErr: 'That file is too big. The limit is 20 MB.' }); return; }
+      self.setState({ labBusy: true, labErr: '' });
+      var addMeta = function (meta) {
+        var nl = (self.state.labs || []).map(function (x) { if (x.id !== lid) return x; var c = {}; for (var k in x) c[k] = x[k]; c.photos = (x.photos || []).concat([meta]); return c; });
+        self.setState({ labs: nl, labBusy: false, labMsg: 'Report saved with this lab.' });
+      };
+      shrink(f).then(function (b) {
+        var ty = isPdf ? 'application/pdf' : (b.type || 'image/jpeg'), nm = isPdf ? f.name : f.name.replace(/\.[^.]+$/, '') + '.jpg';
+        if (window.ASC_SITE) { var key = lid + '-' + Date.now(); return LDB.put(key, b).then(function () { addMeta({ k: key, name: nm, type: ty, size: b.size, added: new Date().toISOString(), local: true }); }); }
+        return shUse().then(function (a) { if (!a) throw { code: 'not_granted' }; return a.upload(new File([b], nm, { type: ty }), { type: ty }); }).then(function (r) { addMeta({ k: r.id, name: nm, type: ty, size: r.sizeBytes || b.size, added: new Date().toISOString() }); });
+      }).catch(function (err) { self.setState({ labBusy: false, labErr: err && err.code ? shErr(err.code) : 'Could not save that file. If it is an iPhone HEIC photo, take a screenshot of it and add the screenshot.' }); });
+    };
+    var photoRows = function (lab) {
+      return (lab.photos || []).map(function (ph) {
+        var href = '';
+        if (ph.local) { href = LDB.urls[ph.k] || ''; if (!href && !LDB.urls['_l' + ph.k]) { LDB.urls['_l' + ph.k] = 1; LDB.get(ph.k).then(function (b) { if (b) { LDB.urls[ph.k] = URL.createObjectURL(b); self.setState({ labTick: Date.now() }); } }).catch(function () {}); } }
+        else href = '/_blob/' + ph.k;
+        var key = 'lp' + ph.k;
+        return { name: ph.name, href: href, has: !!href, isImg: /^image\//.test(ph.type || ''), info: (/pdf/.test(ph.type || '') ? 'PDF' : 'Photo') + ' · added ' + fmtShort(new Date(ph.added)) + (ph.local ? ' · on this phone only' : ''),
+          delLabel: s.arm === key ? 'Tap again' : 'Delete',
+          remove: function () {
+            if (self.state.arm !== key) { self.setState({ arm: key }); setTimeout(function () { if (self.state.arm === key) self.setState({ arm: null }); }, 5000); return; }
+            var gone = ph.local ? LDB.del(ph.k) : shUse().then(function (a) { return a ? a.delete(ph.k) : null; }).catch(function () {});
+            Promise.resolve(gone).catch(function () {}).then(function () {
+              var nl = (self.state.labs || []).map(function (x) { if (x.id !== lab.id) return x; var c = {}; for (var k in x) c[k] = x[k]; c.photos = (x.photos || []).filter(function (y) { return y.k !== ph.k; }); return c; });
+              self.setState({ labs: nl, arm: null, labMsg: 'Deleted ' + ph.name + '.' });
+            });
+          } };
+      });
+    };
+    var labHist = labs.slice().reverse().map(function (lb) {
+      var n = Object.keys(lb.vals || {}).length, fl = Object.keys(lb.vals || {}).filter(function (k) { return lFlag(lValOf(lb, k)); }).length, key = 'ld' + lb.id;
+      return { title: lDate(lb.date) + (lb.lab ? ' · ' + lb.lab : ''), info: n + ' result' + (n === 1 ? '' : 's') + (fl ? ' · ' + fl + ' outside your lab\'s range' : ''), note: lb.note || '', hasNote: !!lb.note,
+        edit: openLabForm(lb), photos: photoRows(lb), hasPhotos: (lb.photos || []).length > 0,
+        addPhoto: function () { window.__labPhotoFor = lb.id; var inp = document.getElementById('labPhotoFile'); if (inp) inp.click(); },
+        delLabel: s.arm === key ? 'Tap again to delete' : 'Delete',
+        remove: function () {
+          if (self.state.arm !== key) { self.setState({ arm: key }); setTimeout(function () { if (self.state.arm === key) self.setState({ arm: null }); }, 5000); return; }
+          (lb.photos || []).forEach(function (ph) { if (ph.local) LDB.del(ph.k).catch(function () {}); else shUse().then(function (a) { return a ? a.delete(ph.k) : null; }).catch(function () {}); });
+          self.setState({ labs: (self.state.labs || []).filter(function (x) { return x.id !== lb.id; }), arm: null, labMsg: 'Deleted the lab from ' + lDate(lb.date) + '.' });
+        } };
+    });
+    var lt = s.labTest && LT[s.labTest] ? LT[s.labTest] : null, ltc = lt ? labChart(lt.id) : null;
+    var labVals = {
+      isBody: s.tab === 'body' && s.btab !== 'labs', isLabs: s.tab === 'body' && s.btab === 'labs',
+      btabs: [['meas', 'Measurements'], ['labs', 'Bloodwork & labs']].map(function (x) { var on = (s.btab || 'meas') === x[0]; return { label: x[1], bg: on ? 'linear-gradient(135deg, #22D3EE, #818CF8)' : 'transparent', fg: on ? '#04111F' : '#E6EEFF', pick: function () { self.setState({ btab: x[0], labTest: null }); } }; }),
+      labFormOpen: !!lf, labFormTitle: lf && lf.id ? 'Edit lab results' : 'Add lab results', lf: lf || {}, labFormGroups: labFormGroups, labErr: s.labErr || '', hasLabErr: !!s.labErr,
+      labMsg: s.labMsg || '', hasLabMsg: !!s.labMsg && !lf, labBusy: !!s.labBusy,
+      onLfDate: function (e) { setLF({ date: e.target.value }); }, onLfLab: function (e) { setLF({ lab: e.target.value }); }, onLfNote: function (e) { setLF({ note: e.target.value }); },
+      onLfCName: function (e) { setLF({ cName: e.target.value }); }, onLfCUnit: function (e) { setLF({ cUnit: e.target.value }); }, addCustom: addCustom,
+      saveLab: saveLab, cancelLab: function () { self.setState({ labF: null, labErr: '' }); }, addLab: openLabForm(null), onLabPhoto: onLabPhoto,
+      hasLabs: labs.length > 0, noLabs: labs.length === 0 && !lf, noLtNoForm: !lf && !lt,
+      cmpTitle: L1 ? (L0 ? 'CHANGES SINCE YOUR LAST LAB · ' + fmtShort(parseKey(L0.date)) + ' → ' + fmtShort(parseKey(L1.date)) : 'YOUR FIRST LAB · ' + lDate(L1.date)) : '',
+      labCompare: labCompare, hasCompare: labCompare.length > 0,
+      labEvents: L1 && L0 ? lEvents(L0.date, L1.date) : [], hasLabEvents: !!(L1 && L0 && lEvents(L0.date, L1.date).length),
+      labFlagLine: labFlagN ? labFlagN + ' result' + (labFlagN === 1 ? '' : 's') + ' outside the range on your lab report.' : '',
+      hasLabFlagLine: labFlagN > 0,
+      labHist: labHist, labPhotoNote: window.ASC_SITE ? 'Report photos are kept on this phone only. They are not in your backup file, so keep the paper or PDF too.' : 'Report photos are saved with your Ascendose files.',
+      ltOpen: !!lt, ltName: lt ? lt.name : '', ltGroup: lt ? lt.gName : '', ltc: ltc || { pts: [], marks: [], yLab: [], xLab: [], rows: [] }, ltHasChart: !!(ltc && ltc.has), ltQual: !!(lt && lt.q),
+      ltStar: lt && labWatch.indexOf(lt.id) >= 0 ? '★ Watching (tap to stop)' : '+ Watch this test', ltToggleWatch: lt ? toggleWatch(lt.id) : function () {},
+      ltBack: function () { self.setState({ labTest: null }); },
+      // Home card: newest lab with results outside the user's own lab range
+      homeLab: !!(L1 && labFlagN > 0 && s.labSeen !== L1.id), homeLabText: L1 ? lDate(L1.date) + ': ' + labFlagN + ' result' + (labFlagN === 1 ? '' : 's') + ' outside the range on your lab report.' : '',
+      homeLabOpen: function () { self.setState({ tab: 'body', btab: 'labs', labTest: null }); }, homeLabHide: function () { self.setState({ labSeen: L1 ? L1.id : '' }); }
+    };
+    // data for the Word report
+    self.__labReport = (function () {
+      if (!labs.length) return null;
+      var cmp = labCompare.map(function (r) { return [r.name, r.now, r.was, r.diff || '—', r.range.replace('Your lab\'s range: ', ''), r.flag || '']; });
+      var last = labs.slice(-6), cols = last.map(function (lb) { return fmtShort(parseKey(lb.date)); });
+      var all = [];
+      LTorder.forEach(function (id) { var cells = last.map(function (lb) { return lValTxt(lValOf(lb, id)); }); if (cells.some(function (c) { return c !== '—'; })) all.push([LT[id].name].concat(cells)); });
+      return { latest: lDate(L1.date), prev: L0 ? lDate(L0.date) : '', cmp: cmp, cols: cols, all: all, events: L1 && L0 ? lEvents(L0.date, L1.date).map(function (e) { return e.t; }) : [] };
+    })();
     var ret = {
       isHome: s.tab === 'home', isLib: s.tab === 'lib', isDetail: s.tab === 'detail', isCalc: s.tab === 'calc', isCal: s.tab === 'cal', isMore: s.tab === 'more', isSettings: s.tab === 'settings',
       isProf: s.tab === 'prof', isProfArea: s.tab === 'prof' || s.tab === 'body', areaTitle: s.tab === 'body' ? 'Body' : 'Plans',
@@ -4204,6 +4605,7 @@ class Component extends window.DCLogic {
     for (var pk in planner) ret[pk] = planner[pk];
     for (var qk in prVals) ret[qk] = prVals[qk];
     for (var gk in protoVals) ret[gk] = protoVals[gk];
+    for (var lk in labVals) ret[lk] = labVals[lk];
     return ret;
   }
 }
@@ -4353,12 +4755,14 @@ function atlasExtras(comp, example, save) {
     eraseNote: s.arm === 'erase' ? 'This erases all plans, marked doses, site picks, body measurements, My protocol notes and saved guides, on every synced device. Tap again within 6 seconds to confirm.' : '', hasEraseNote: s.arm === 'erase',
     resetAll: function () {
       if (comp.state.arm !== 'erase') { comp.setState({ arm: 'erase' }); setTimeout(function () { if (comp.state.arm === 'erase') comp.setState({ arm: null }); }, 6000); return; }
-      comp.setState({ arm: null, plans: [], done: {}, sov: {}, body: [], protocols: {}, guides: {}, sheets: {}, nextId: 101, form: null, chg: null, cu: null, sup: null, bform: null, calView: null, openPlan: null, mapOpen: null });
+      comp.setState({ arm: null, plans: [], done: {}, sov: {}, body: [], protocols: {}, guides: {}, sheets: {}, labs: [], labCustom: [], labWatch: [], labSeen: '', labF: null, labTest: null, nextId: 101, form: null, chg: null, cu: null, sup: null, bform: null, calView: null, openPlan: null, mapOpen: null });
+      try { if (window.__labDB) window.__labDB.clear().catch(function () {}); } catch (e) {}
       say('All data erased (on every synced device).');
     },
     exportReport: function () {
       var R = comp.__report;
-      if (!R || (!R.plans.length && !R.body.rows.length)) { say('Add a plan or a body entry first; the report has nothing to show yet.'); return; }
+      if (R) R.labs = comp.__labReport || null;
+      if (!R || (!R.plans.length && !R.body.rows.length && !R.labs)) { say('Add a plan, a body entry or a lab first; the report has nothing to show yet.'); return; }
       var bytes;
       try { bytes = window.__ascDocx(R); } catch (e) { say('Could not build the Word report.'); return; }
       var d0 = new Date(), p2 = function (n) { return (n < 10 ? '0' : '') + n; };
