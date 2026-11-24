@@ -3099,12 +3099,13 @@ class Component extends window.DCLogic {
       var sd0 = parseKey(p.start), dn = Math.max(0, Math.round((today - sd0) / 86400000)), wkNow = Math.min(totalWeeks(p), Math.floor(dn / 7) + 1);
       var e = eff(p, todayKey), c0 = concOf(e), u0 = unitsOf(p, e, wkNow), m0 = mgOf(p, e, wkNow), ml0 = c0 && m0 ? m0 / c0 : 0, isIM = syrType(p) !== 'insulin', vialLine = '', nd1 = noDraw(p), po1 = isPO(p);
       if (c0 && m0) {
-        var fromKey = e.from && e.from <= todayKey ? e.from : p.start, L = [];
-        (p.changes || []).forEach(function (c) { if (c.from <= todayKey && (c.vial || c.water)) fromKey = c.from; });
-        Object.keys(S[i]).sort().forEach(function (k) { if (k >= fromKey) S[i][k].forEach(function (x) { L.push(x); }); });
+        // same vial start as the Supply box (a vial/liquid change or the opened date you logged);
+        // past doses count only if marked taken, today and later count as scheduled
+        var fromKey = vialStartKey(p), L = [];
+        Object.keys(S[i]).sort().forEach(function (k) { if (k >= fromKey) S[i][k].forEach(function (x) { if (k >= todayKey || done[dkey(p, x)]) L.push(x); }); });
         var acc = 0, vialMg = parseFloat(e.vial), nextKey = null;
         for (var j = 0; j < L.length; j++) { acc += L[j].mg; if (acc > vialMg + 1e-9) { nextKey = L[j].key; break; } }
-        vialLine = '\nCurrent vial (started ' + fmtShort(parseKey(fromKey)) + '): ' + (nextKey ? 'new vial needed ' + fmtLong(parseKey(nextKey)) : 'lasts through the end of the plan');
+        vialLine = '\nCurrent vial (opened ' + fmtShort(parseKey(fromKey)) + '): ' + (nextKey ? 'new vial needed ' + fmtLong(parseKey(nextKey)) : 'lasts through the end of the plan');
       }
       var SP = supplyOf(p, i), CO = courseOf(p, i), phN = phaseAt(p, todayKey);
       var stopHere = !!(s.stopF && s.stopF.id === p.id), sF = stopHere ? s.stopF : {};
