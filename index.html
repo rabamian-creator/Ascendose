@@ -105,6 +105,7 @@ h1,h2{letter-spacing:-0.02em}
 <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
 <div style="display: flex; flex-direction: column; gap: 16px;">
 <div id="hero3d" data-keep="1" aria-hidden="true" style="height: 92px; margin: -20px -20px -14px; position: relative;"></div>
+<sc-if value="{{ hasStoreWarn }}" hint-placeholder-val="{{ false }}"><div role="alert" style="padding: 12px 14px; border-radius: 12px; background: rgba(248,113,113,0.13); border: 1px solid rgba(248,113,113,0.5); font-size: 13px; line-height: 1.5; color: #FECACA;">Saved data is at {{ storePct }}% of the sync space Claude gives this app (256 KB). At 100% new changes stop syncing. Use Back up now, delete stopped plans you no longer need, and ask Claude to make the history smaller.</div></sc-if>
 <sc-if value="{{ hasSyncWarn }}" hint-placeholder-val="{{ false }}"><div role="status" style="padding: 12px 14px; border-radius: 12px; background: rgba(251,191,36,0.13); border: 1px solid rgba(251,191,36,0.45); display: flex; flex-direction: column; gap: 8px;"><div style="font-size: 13px; line-height: 1.5; font-weight: 600; color: #FBBF24;">{{ syncWarn }}</div><div style="display: flex; gap: 8px; flex-wrap: wrap;"><button type="button" onClick="{{ goBackup }}" style="min-height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid #FBBF24; background: transparent; color: #FBBF24; font-size: 13px; font-weight: 700; cursor: pointer;">Back up now</button><button type="button" onClick="{{ hideSyncWarn }}" style="min-height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid rgba(148,163,209,0.35); background: transparent; color: #AEB9D4; font-size: 13px; font-weight: 600; cursor: pointer;">Hide for now</button></div></div></sc-if>
 <h1 style="margin: 0; font-family: 'Sora', 'Inter', system-ui, sans-serif; font-size: 23px; line-height: 1.12; font-weight: 700;">Track every dose. <span class="grad">Watch yourself ascend.</span></h1>
 <div style="padding: 16px; border-radius: 18px; background: linear-gradient(135deg, rgba(34,211,238,0.14), rgba(129,140,248,0.14)); border: 1px solid rgba(103,232,249,0.35); box-shadow: 0 0 28px rgba(34,211,238,0.12), inset 0 1px 0 rgba(255,255,255,0.08); color: #E6EEFF; display: flex; flex-direction: column; gap: 10px;">
@@ -389,7 +390,7 @@ h1,h2{letter-spacing:-0.02em}
 <h2 style="margin: 0; font-family: 'Sora', 'Inter', system-ui, sans-serif; font-size: 28px; font-weight: 700;">Calendar</h2>
 <sc-if value="{{ noPlans }}" hint-placeholder-val="{{ false }}">
 <div style="padding: 16px; border: 1px solid rgba(148,163,209,0.18); border-radius: 14px; background: rgba(255,255,255,0.05); display: flex; flex-direction: column; gap: 10px;">
-<div style="font-size: 15px; line-height: 1.5;">No plans yet. Add up to 12 plans and they all show here.</div>
+<div style="font-size: 15px; line-height: 1.5;">No plans yet. Add up to 24 active plans (injections, meds and supplements) and they all show here.</div>
 <button type="button" onClick="{{ goProfile }}" style="height: 48px; border: none; border-radius: 14px; background: linear-gradient(135deg, #22D3EE, #818CF8); color: #04111F; box-shadow: 0 6px 24px rgba(34,211,238,0.25); font-size: 15px; font-weight: 600; cursor: pointer;">Go to Plans</button>
 </div>
 </sc-if>
@@ -1622,6 +1623,7 @@ h1,h2{letter-spacing:-0.02em}
 <div style="font-size: 13px; line-height: 1.5; color: #B4C0DA;">Plans, dose log, totals, body measurements, BMI and body fat in one Word file.</div>
 </sc-if>
 <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;">
+<sc-if value="{{ storePct }}" hint-placeholder-val="{{ false }}"><div style="font-size: 13px; color: #AEB9D4;">Sync space used: {{ storePct }}% of 256 KB.</div></sc-if>
 <button type="button" onClick="{{ exportData }}" style="min-height: 46px; border: none; border-radius: 14px; background: linear-gradient(135deg, #22D3EE, #818CF8); color: #04111F; box-shadow: 0 6px 24px rgba(34,211,238,0.25); font-size: 14px; font-weight: 600; cursor: pointer;">Back up</button>
 <label for="importFile" style="min-height: 46px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(148,163,209,0.35); border-radius: 12px; background: rgba(255,255,255,0.05); color: #E6EEFF; font-size: 14px; font-weight: 600; cursor: pointer;">Restore</label>
 </div>
@@ -2382,8 +2384,8 @@ class Component extends window.DCLogic {
     var parseKey = function (k) { var a = String(k || '').split('-'); if (a.length !== 3) return null; var dt = new Date(+a[0], +a[1] - 1, +a[2]); return isNaN(dt) ? null : dt; };
     var today = new Date(); today.setHours(0, 0, 0, 0);
     var todayKey = keyOf(today);
-    var COLORS = ['#22D3EE', '#A78BFA', '#34D399', '#F472B6', '#FBBF24', '#60A5FA', '#FB923C', '#F87171', '#A3E635', '#2DD4BF', '#E879F9', '#CBD5E1'];
-    var MAXP = 12;
+    var COLORS = ['#22D3EE', '#A78BFA', '#34D399', '#F472B6', '#FBBF24', '#60A5FA', '#FB923C', '#F87171', '#A3E635', '#2DD4BF', '#E879F9', '#CBD5E1', '#0EA5E9', '#C084FC', '#16A34A', '#FB7185', '#FDE68A', '#6366F1', '#EA580C', '#BE185D', '#84CC16', '#0D9488', '#FCA5A5', '#94A3B8'];
+    var MAXP = 24;
     var rgba = function (hex, a) { var n = parseInt(String(hex).slice(1), 16); return 'rgba(' + (n >> 16) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')'; };
     var SITES_SC = ['L abdomen, lower', 'R abdomen, lower', 'L abdomen, upper', 'R abdomen, upper', 'L abdomen, middle', 'R abdomen, middle', 'Center abdomen, above navel', 'Center abdomen, below navel', 'L love handle (flank)', 'R love handle (flank)', 'L thigh, front (SubQ)', 'R thigh, front (SubQ)', 'L upper arm, back (SubQ)', 'R upper arm, back (SubQ)', 'L upper buttock (SubQ)', 'R upper buttock (SubQ)'];
     var SITES_IM = ['L ventrogluteal / hip (IM)', 'R ventrogluteal / hip (IM)', 'L glute, upper outer (IM)', 'R glute, upper outer (IM)', 'L thigh, outer (IM)', 'R thigh, outer (IM)', 'L deltoid (IM)', 'R deltoid (IM)'];
@@ -4337,6 +4339,8 @@ function atlasExtras(comp, example, save) {
     syncOn: (window.__cloudStatus ? window.__cloudStatus() : 'local') === 'synced',
     hasSyncWarn: (function () { var st = window.__cloudStatus ? window.__cloudStatus() : 'local'; if (SITE) return window.__storeOK === false; return window.__storeOK === false || ((st === 'noacct' || st === 'offline') && !!hasData && !s.__warnHide); })(),
     hideSyncWarn: function () { comp.setState({ __warnHide: 1 }); },
+    storePct: (function () { if (SITE) return 0; try { return Math.round(unescape(encodeURIComponent(JSON.stringify(pick(s)))).length / 262144 * 100); } catch (e) { return 0; } })(),
+    hasStoreWarn: (function () { if (SITE) return false; try { return unescape(encodeURIComponent(JSON.stringify(pick(s)))).length > 196608; } catch (e) { return false; } })(),
     goBackup: function () { comp.setState({ tab: 'settings', __warnHide: 1 }); },
     dataMsg: s.__msg || '',
     hasDataMsg: !!s.__msg,
