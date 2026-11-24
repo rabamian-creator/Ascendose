@@ -58,7 +58,7 @@ h1,h2{letter-spacing:-0.02em}
 <svg width="30" height="30" viewBox="0 0 32 32" fill="none" aria-hidden="true"><defs><linearGradient id="lg9" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#22D3EE"></stop><stop offset="1" stop-color="#A78BFA"></stop></linearGradient></defs><path d="M5 22 L16 11 L27 22" stroke="url(#lg9)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M9 28 L16 21 L23 28" stroke="url(#lg9)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"></path><circle cx="16" cy="5" r="2.6" fill="#67E8F9"></circle></svg>
 <div style="display: flex; flex-direction: column; gap: 2px;">
 <div style="font-family: 'Sora', 'Inter', system-ui, sans-serif; font-size: 19px; font-weight: 700;">{{ termsTitle }}</div>
-<div style="font-size: 13px; color: #AEB9D4;">Medical &amp; legal disclaimer · Updated September 20, 2026</div>
+<div style="font-size: 13px; color: #AEB9D4;">Medical &amp; legal disclaimer · Updated November 24, 2026</div>
 </div>
 </div>
 <div style="flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 18px 20px; display: flex; flex-direction: column; gap: 18px;">
@@ -2567,6 +2567,7 @@ class Component extends window.DCLogic {
       return e;
     };
     var concOf = function (e) { var v = parseFloat(e.vial), w = parseFloat(e.water); return v > 0 && w > 0 ? v / w : 0; };
+    var fmtAmtP = function (p, mg) { var u0 = p && p.unit; (p && p.changes || []).forEach(function (c) { if (c.from <= todayKey && c.unit) u0 = c.unit; }); return u0 === 'g' ? r3(mg / 1000) + ' g' : fmtAmt(mg); };
     var fmtD = function (e) { var n = parseFloat(e.dose); return (e.unit === 'IU' && n > 0 ? n.toLocaleString('en-US') : e.dose) + ' ' + e.unit; };
     var doseLabel = function (p, e, week) {
       var st = e.titrate ? stepsFor(p.name) : null;
@@ -2587,7 +2588,7 @@ class Component extends window.DCLogic {
         if (st === 'insulin') { var u = mg / c * 100; out.push({ k: 'UNITS', v: (Math.round(u * 10) / 10) + ' units' }); }
         else out.push({ k: 'DRAW', v: (Math.round(mg / c * 100) / 100) + ' mL' });
       }
-      out.push({ k: 'DOSE', v: mg > 0 ? fmtAmt(mg) : (e.titrate && stepsFor(p.name) ? doseLabel(p, e, week) : fmtD(e)) });
+      out.push({ k: 'DOSE', v: mg > 0 ? fmtAmtP(p, mg) : (e.titrate && stepsFor(p.name) ? doseLabel(p, e, week) : fmtD(e)) });
       if (!po && !nd && c) out.push({ k: 'CONC.', v: concText(c) });
       return out;
     };
@@ -3134,11 +3135,11 @@ class Component extends window.DCLogic {
       var thisWeek = all.filter(function (x) { return x.week === wkNow; });
       var e = eff(p, todayKey), conc = concOf(e), uNow = unitsOf(p, e, wkNow);
       var weeksElapsed = diff < 0 ? 0 : Math.min(totalWeeks(p), Math.floor(diff / 7) + 1);
-      var amt = function (L) { return hasMg ? fmtAmt(sum(L)) : L.length + ' doses'; };
+      var amt = function (L) { return hasMg ? fmtAmtP(p, sum(L)) : L.length + ' doses'; };
       var stats = [
         { label: 'TAKEN SO FAR', value: amt(taken), sub: taken.length + ' of ' + past.length + ' due doses marked' },
         { label: 'THIS WEEK (W' + wkNow + ')', value: amt(thisWeek.filter(function (x) { return done[dkey(p, x)]; })), sub: 'of ' + amt(thisWeek) + ' scheduled' },
-        { label: 'AVG PER WEEK', value: hasMg && weeksElapsed ? fmtAmt(sum(taken) / weeksElapsed) : '—', sub: weeksElapsed + ' week' + (weeksElapsed === 1 ? '' : 's') + ' in' },
+        { label: 'AVG PER WEEK', value: hasMg && weeksElapsed ? fmtAmtP(p, sum(taken) / weeksElapsed) : '—', sub: weeksElapsed + ' week' + (weeksElapsed === 1 ? '' : 's') + ' in' },
         { label: 'ON SCHEDULE', value: past.length ? Math.round(taken.length / past.length * 100) + '%' : '—', sub: (past.length - taken.length) + ' not marked' },
         { label: 'WHOLE PLAN', value: amt(all), sub: all.length + ' doses over ' + totalWeeks(p) + ' wk' },
         noDraw(p) ? { label: 'FORM', value: isPO(p) ? 'By mouth' : 'Pen', sub: isPO(p) ? 'tablet, capsule or liquid' : 'no syringe draw' } : { label: 'CONCENTRATION NOW', value: conc ? (Math.round(conc * 1000) / 1000) + ' mg/mL' : 'not set', sub: e.vial ? e.vial + ' mg in ' + e.water + ' mL' : 'add vial + water' }
@@ -3337,7 +3338,7 @@ class Component extends window.DCLogic {
         cuMark: function () {
           if (!cuOk) { self.setState({ cuError: cuErr || 'Pick a valid date.' }); return; }
           if (!cuList.length) { self.setState({ cuError: 'No scheduled doses in that range.' }); return; }
-          var nd = {}; for (var k in done) nd[k] = done[k]; cuList.forEach(function (k) { nd[k] = cuSite[k] || true; });
+          var nd = {}; for (var k in done) nd[k] = done[k]; cuList.forEach(function (k) { nd[k] = true; });
           var t = cuList.length + ' past ' + cuPl.name + ' doses marked as taken (through ' + fmtShort(parseKey(cuTo)) + ').'; self.setState({ done: nd, cu: null, cuError: '', cuMsg: t }); setTimeout(function () { if (self.state.cuMsg === t) self.setState({ cuMsg: '' }); }, 9000);
         },
         cuClear: function () {
@@ -4634,7 +4635,7 @@ function atlasExtras(comp, example, save) {
       window.ASC_SITE ? 'Your entries are kept only on this phone, inside the Ascendose Home Screen icon. Nothing is sent to anyone: not to the app owner, not to a server. It does not move to another phone.' : 'Your entries are kept on this device, in the browser or Home Screen icon you opened the app from. Testers\' data is not saved online: nobody else can see it, and it does not move to another phone or browser.',
       'Anyone else who opens the link starts with an empty app and cannot see your data.',
       window.ASC_SITE ? 'Safari and the Home Screen icon keep separate copies. Always open Ascendose from its icon.' : 'Each browser and app on a phone keeps its own separate copy (Safari, Chrome, the Claude app, WhatsApp\'s built-in browser, a Home Screen icon). Open Ascendose the same way every time.',
-      'Keep your own backup: More, then My data, then Back up. Clearing your browser data erases the copy stored on this device.'] },
+      'Keep your own backup: More, then Settings, then Back up. Clearing your browser data erases the copy stored on this device.'] },
     { h: 'NO WARRANTY', lines: [
       'Ascendose is provided as-is for testing, with no guarantee that it is accurate, complete or available. You use it at your own risk and you are responsible for what you do with it.',
       'Using it does not create a doctor-patient relationship with anyone.'] }
@@ -4695,7 +4696,7 @@ function atlasExtras(comp, example, save) {
     var raw = String(s.shPhone || '').trim(), dg = raw.replace(/\D/g, '');
     if (!/^\s*\+/.test(raw) && dg.length === 10) dg = '1' + dg;
     var valid = dg.length >= 11 && dg.length <= 15, nm = String(s.shName || '').trim();
-    var msg = SITE ? ('Hi' + (nm ? ' ' + nm : '') + '! Here is Ascendose, a personal dose tracker I am testing:\n' + APP_URL + '\n\n' +
+    var msg = true ? ('Hi' + (nm ? ' ' + nm : '') + '! Here is Ascendose, a personal dose tracker I am testing:\n' + (SITE ? APP_URL : 'https://rabamian-creator.github.io/Ascendose/') + '\n\n' +
       'No account needed. Your data stays on your phone only.\n\n' +
       'iPhone: open the link in Safari, tap the Share button, then "Add to Home Screen".\n' +
       'Android: open the link in Chrome, tap the 3-dot menu, then "Add to Home screen" or "Install app".\n' +
@@ -4749,12 +4750,12 @@ function atlasExtras(comp, example, save) {
       say('Example data loaded. You can erase it any time under My data.');
     },
     eraseLabel: s.arm === 'erase' ? 'Tap again to erase everything' : 'Erase all my data', eraseBg: s.arm === 'erase' ? '#F87171' : 'rgba(255,255,255,0.05)', eraseFg: s.arm === 'erase' ? '#04111F' : '#F87171',
-    eraseNote: s.arm === 'erase' ? 'This erases all plans, marked doses, site picks, body measurements, My protocol notes and saved guides, on every synced device. Tap again within 6 seconds to confirm.' : '', hasEraseNote: s.arm === 'erase',
+    eraseNote: s.arm === 'erase' ? 'This erases all plans, marked doses, site picks, body measurements, lab results and report photos, My protocol notes and saved guides' + (SITE ? ' on this phone' : ', on every synced device') + '. Tap again within 6 seconds to confirm.' : '', hasEraseNote: s.arm === 'erase',
     resetAll: function () {
       if (comp.state.arm !== 'erase') { comp.setState({ arm: 'erase' }); setTimeout(function () { if (comp.state.arm === 'erase') comp.setState({ arm: null }); }, 6000); return; }
       comp.setState({ arm: null, plans: [], done: {}, sov: {}, body: [], protocols: {}, guides: {}, sheets: {}, labs: [], labCustom: [], labWatch: [], labSeen: '', labF: null, labTest: null, nextId: 101, form: null, chg: null, cu: null, sup: null, bform: null, calView: null, openPlan: null, mapOpen: null });
       try { if (window.__labDB) window.__labDB.clear().catch(function () {}); } catch (e) {}
-      say('All data erased (on every synced device).');
+      say(SITE ? 'All data erased from this phone.' : 'All data erased (on every synced device).');
     },
     exportReport: function () {
       var R = comp.__report;
@@ -4776,7 +4777,7 @@ function atlasExtras(comp, example, save) {
       }, none);
     },
     exportData: function () {
-      var data = JSON.stringify({ app: 'ascendose', version: 1, saved: new Date().toISOString(), plans: s.plans || [], done: s.done || {}, body: s.body || [], nextId: s.nextId, bunit: s.bunit, bsex: s.bsex, bheight: s.bheight, bbirth: s.bbirth || '', bsfp: s.bsfp || '3', protocols: s.protocols || {}, sov: s.sov || {}, guides: s.guides || {}, reports: s.reports || [], sheets: s.sheets || {}, btin: s.btin || '', b2x: !!s.b2x }, null, 2);
+      var data = JSON.stringify({ app: 'ascendose', version: 1, saved: new Date().toISOString(), plans: s.plans || [], done: s.done || {}, body: s.body || [], nextId: s.nextId, bunit: s.bunit, bsex: s.bsex, bheight: s.bheight, bbirth: s.bbirth || '', bsfp: s.bsfp || '3', protocols: s.protocols || {}, sov: s.sov || {}, guides: s.guides || {}, reports: s.reports || [], sheets: s.sheets || {}, btin: s.btin || '', b2x: !!s.b2x, labs: s.labs || [], labCustom: s.labCustom || [], labWatch: s.labWatch || [], labSeen: s.labSeen || '', snooze: s.snooze || {} }, null, 2);
       var nd = new Date(), name = 'ascendose-backup-' + nd.getFullYear() + '-' + ('0' + (nd.getMonth() + 1)).slice(-2) + '-' + ('0' + nd.getDate()).slice(-2) + '.json';
       var fallback = function () {
         try { navigator.clipboard.writeText(data).then(function () { say('Backup copied to the clipboard. Paste it into Notes to keep it.'); }, function () { say('Could not save or copy the backup here.'); }); }
@@ -4806,7 +4807,7 @@ function atlasExtras(comp, example, save) {
         try {
           var o = JSON.parse(r.result);
           if (!o || (o.app !== 'compound-atlas' && o.app !== 'ascendose') || !Array.isArray(o.plans)) throw new Error('bad');
-          comp.setState({ plans: o.plans.slice(0, 12), done: o.done || {}, body: o.body || [], nextId: Math.max.apply(null, [o.nextId || 101].concat(o.plans.map(function (x) { return (x && x.id) || 0; }))), bunit: o.bunit || 'us', bsex: o.bsex || 'male', bheight: o.bheight || '', bbirth: o.bbirth || '', bsfp: o.bsfp || '3', protocols: o.protocols || {}, sov: o.sov || {}, guides: o.guides || {}, sheets: o.sheets || {}, reports: o.reports || [], btin: o.btin || '', b2x: !!o.b2x });
+          comp.setState({ plans: o.plans.slice(), done: o.done || {}, body: o.body || [], nextId: Math.max.apply(null, [o.nextId || 101].concat(o.plans.map(function (x) { return (x && x.id) || 0; }))), bunit: o.bunit || 'us', bsex: o.bsex || 'male', bheight: o.bheight || '', bbirth: o.bbirth || '', bsfp: o.bsfp || '3', protocols: o.protocols || {}, sov: o.sov || {}, guides: o.guides || {}, sheets: o.sheets || {}, reports: o.reports || [], btin: o.btin || '', b2x: !!o.b2x, labs: o.labs || [], labCustom: o.labCustom || [], labWatch: o.labWatch || [], labSeen: o.labSeen || '', snooze: o.snooze || {} });
           say('Backup restored.');
         } catch (err) { say('That file is not an Ascendose backup.'); }
         e.target.value = '';
@@ -4816,8 +4817,8 @@ function atlasExtras(comp, example, save) {
   };
   for (var tk in TERMS_VALS) OUT[tk] = TERMS_VALS[tk];
   OUT.iconSrc = 'data:image/png;base64,' + ICON512;
-  OUT.shIntro = SITE ? 'Sends the app link plus install steps. Your phone opens the message ready to go; you tap Send. No account needed, and they start with a blank app (your data stays on your phone).' : 'Sends the app link plus install steps. Your phone opens the message ready to go; you tap Send. The person needs a free Claude account, and starts with a blank app (your data stays private).';
-  OUT.shFoot = SITE ? 'If a button does nothing, use Copy message and paste it into Messages.' : 'Before the first send, set this app to "Anyone with the link" (Share button, on claude.ai in a web browser). If a button does nothing inside the Claude viewer, use Copy message and paste it into Messages.';
+  OUT.shIntro = (SITE ? '' : 'Sends the tester website link (rabamian-creator.github.io/Ascendose), not this Claude page. ') + 'Sends the app link plus install steps. Your phone opens the message ready to go; you tap Send. No account needed, and they start with a blank app (your data stays on your phone).';
+  OUT.shFoot = 'If a button does nothing, use Copy message and paste it into Messages.';
   OUT.hasIconMsg = !!s.__iconMsg; OUT.iconMsg = s.__iconMsg || '';
   OUT.saveIcon = function () {
     var bin = atob(ICON512), u8 = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
