@@ -1294,6 +1294,13 @@ h1,h2{letter-spacing:-0.02em}
 <div style="display: flex; gap: 6px;">
 <sc-for list="{{ perDayChips }}" as="pc" hint-placeholder-count="3"><button type="button" onClick="{{ pc.pick }}" style="min-height: 40px; padding: 0 12px; border-radius: 999px; border: 1px solid rgba(148,163,209,0.35); font-size: 13px; font-weight: 600; cursor: pointer; background: {{ pc.bg }}; color: {{ pc.fg }};">{{ pc.label }}</button></sc-for>
 </div>
+<sc-if value="{{ showTod }}" hint-placeholder-val="{{ true }}">
+<div style="font-size: 13px; font-weight: 600; color: #B4C0DA; margin-top: 4px;">Desired time to take it (optional)</div>
+<div style="display: flex; flex-wrap: wrap; gap: 6px;"><sc-for list="{{ todChips }}" as="tc" hint-placeholder-count="5"><button type="button" onClick="{{ tc.pick }}" aria-pressed="{{ tc.on }}" style="min-height: 40px; padding: 0 12px; border-radius: 999px; border: 1px solid rgba(148,163,209,0.35); font-size: 13px; font-weight: 600; cursor: pointer; background: {{ tc.bg }}; color: {{ tc.fg }};">{{ tc.label }}</button></sc-for></div>
+<div style="display: flex; align-items: center; gap: 8px;"><label for="fTime" style="font-size: 13px; color: #B4C0DA;">Exact time (optional)</label><input id="fTime" type="time" value="{{ f.todTime }}" onChange="{{ onFTime }}" style="height: 42px; box-sizing: border-box; padding: 0 10px; font-size: 16px; font-family: inherit; border: 1px solid rgba(148,163,209,0.35); border-radius: 10px; background: rgba(255,255,255,0.05); color: #E6EEFF;"></div>
+<div style="font-size: 12px; line-height: 1.45; color: #8E9AB8;">Your choice, from your prescriber or protocol. Home and the calendar list each day's doses in this order: morning, midday, evening, bedtime, then any time.</div>
+</sc-if>
+<sc-if value="{{ showTodMulti }}" hint-placeholder-val="{{ false }}"><div style="font-size: 12px; line-height: 1.45; color: #8E9AB8;">2x a day = morning and night. 3x a day = morning, midday and night. They are listed in that order.</div></sc-if>
 <div style="font-size: 13px; font-weight: 600; color: #B4C0DA;">Cycle (optional): weeks on / weeks off</div>
 <div style="display: flex; gap: 8px; align-items: center;">
 <input id="fOn" aria-label="Weeks on" type="number" inputmode="numeric" value="{{ f.cycleOn }}" onChange="{{ onFOn }}" placeholder="on" style="width: 80px; height: 46px; box-sizing: border-box; padding: 0 12px; font-size: 16px; font-family: inherit; border: 1px solid rgba(148,163,209,0.35); border-radius: 12px; background: rgba(255,255,255,0.05); color: #E6EEFF;">
@@ -1517,6 +1524,13 @@ h1,h2{letter-spacing:-0.02em}
 <div style="display: flex; gap: 6px;">
 <sc-for list="{{ perDayChips }}" as="pc" hint-placeholder-count="3"><button type="button" onClick="{{ pc.pick }}" style="min-height: 40px; padding: 0 12px; border-radius: 999px; border: 1px solid rgba(148,163,209,0.35); font-size: 13px; font-weight: 600; cursor: pointer; background: {{ pc.bg }}; color: {{ pc.fg }};">{{ pc.label }}</button></sc-for>
 </div>
+<sc-if value="{{ showTod }}" hint-placeholder-val="{{ true }}">
+<div style="font-size: 13px; font-weight: 600; color: #B4C0DA; margin-top: 4px;">Desired time to take it (optional)</div>
+<div style="display: flex; flex-wrap: wrap; gap: 6px;"><sc-for list="{{ todChips }}" as="tc" hint-placeholder-count="5"><button type="button" onClick="{{ tc.pick }}" aria-pressed="{{ tc.on }}" style="min-height: 40px; padding: 0 12px; border-radius: 999px; border: 1px solid rgba(148,163,209,0.35); font-size: 13px; font-weight: 600; cursor: pointer; background: {{ tc.bg }}; color: {{ tc.fg }};">{{ tc.label }}</button></sc-for></div>
+<div style="display: flex; align-items: center; gap: 8px;"><label for="fTime" style="font-size: 13px; color: #B4C0DA;">Exact time (optional)</label><input id="fTime" type="time" value="{{ f.todTime }}" onChange="{{ onFTime }}" style="height: 42px; box-sizing: border-box; padding: 0 10px; font-size: 16px; font-family: inherit; border: 1px solid rgba(148,163,209,0.35); border-radius: 10px; background: rgba(255,255,255,0.05); color: #E6EEFF;"></div>
+<div style="font-size: 12px; line-height: 1.45; color: #8E9AB8;">Your choice, from your prescriber or protocol. Home and the calendar list each day's doses in this order: morning, midday, evening, bedtime, then any time.</div>
+</sc-if>
+<sc-if value="{{ showTodMulti }}" hint-placeholder-val="{{ false }}"><div style="font-size: 12px; line-height: 1.45; color: #8E9AB8;">2x a day = morning and night. 3x a day = morning, midday and night. They are listed in that order.</div></sc-if>
 <div style="font-size: 13px; font-weight: 600; color: #B4C0DA;">Cycle (optional): weeks on / weeks off</div>
 <div style="display: flex; gap: 8px; align-items: center;">
 <input id="fOn" aria-label="Weeks on" type="number" inputmode="numeric" value="{{ f.cycleOn }}" onChange="{{ onFOn }}" placeholder="on" style="width: 80px; height: 46px; box-sizing: border-box; padding: 0 12px; font-size: 16px; font-family: inherit; border: 1px solid rgba(148,163,209,0.35); border-radius: 12px; background: rgba(255,255,255,0.05); color: #E6EEFF;">
@@ -2568,7 +2582,7 @@ class Component extends window.DCLogic {
     };
     var concOf = function (e) { var v = parseFloat(e.vial), w = parseFloat(e.water); return v > 0 && w > 0 ? v / w : 0; };
     var fmtAmtP = function (p, mg) { var u0 = p && p.unit; (p && p.changes || []).forEach(function (c) { if (c.from <= todayKey && c.unit) u0 = c.unit; }); return u0 === 'g' ? r3(mg / 1000) + ' g' : fmtAmt(mg); };
-    var fmtD = function (e) { var n = parseFloat(e.dose); return (e.unit === 'IU' && n > 0 ? n.toLocaleString('en-US') : e.dose) + ' ' + e.unit; };
+    var fmtD = function (e) { var n = parseFloat(e.dose), u = e.unit; if (n === 1 && /^(capsules|tablets|scoops|gelcaps|softgels)$/.test(u)) u = u.slice(0, -1); return (e.unit === 'IU' && n > 0 ? n.toLocaleString('en-US') : e.dose) + ' ' + u; };
     var doseLabel = function (p, e, week) {
       var st = e.titrate ? stepsFor(p.name) : null;
       if (st) { var acc = 0; for (var i = 0; i < st.length; i++) { if (st[i][1] === 0 || week <= acc + st[i][1]) return st[i][0].replace(/ \(.*\)/, ''); acc += st[i][1]; } }
@@ -2802,6 +2816,17 @@ class Component extends window.DCLogic {
       return mkMap(zs, 'Body map. This dose goes in: ' + x.site, dk, mine ? mine.v : null);
     };
 
+    // desired time of day (the user's choice; no recommendation) -> order in Home and the calendar
+    var TODS = { am: [1, 'Morning'], mid: [2, 'Midday'], pm: [3, 'Evening'], bed: [4, 'Bedtime'] };
+    var t12 = function (hm) { var m = /^(\d{1,2}):(\d{2})/.exec(hm || ''); if (!m) return ''; var h = +m[1], ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; return h + ':' + m[2] + ' ' + ap; };
+    var todOf = function (p, x) {
+      var mins = (function () { var m = /^(\d{1,2}):(\d{2})/.exec(p.todTime || ''); return m ? (+m[1]) * 60 + (+m[2]) : null; })();
+      if (x.per > 1) return { ord: x.per === 2 ? (x.k === 0 ? 1 : 3.9) : ([1, 2, 3.9][x.k] || 5), label: '' };
+      var t = TODS[p.tod], tt = t12(p.todTime);
+      if (!t && mins == null) return { ord: 5, label: '' };
+      var ord = t ? t[0] : (mins < 660 ? 1 : mins < 900 ? 2 : mins < 1260 ? 3 : 4);
+      return { ord: ord + (mins != null ? mins / 10000 : 0.0999), label: (t ? t[1] : '') + (t && tt ? ', ' : '') + tt };
+    };
     var entriesFor = function (key, only) {
       var list = [];
       plans.forEach(function (p, i) {
@@ -2817,7 +2842,8 @@ class Component extends window.DCLogic {
             : x.fixed && sov[dk] ? 'Site picked by you.'
             : x.moved ? (x.movedBy ? 'Moved from ' + x.moved + ' so it is not in the same area as ' + x.movedBy + ' today.' : 'Moved from ' + x.moved + ': that area is still inside this plan\'s ' + x.restN + '-day rest.') : '';
           var draw = po ? '' : drawText(x.units, x.syr, x.ml), needle = (po || pen) ? '' : needleText(p), wkT = 'Week ' + x.week + ' of ' + totalWeeks(p);
-          list.push({ color: COLORS[p.color], name: p.name + (x.per > 1 ? ' (' + (window.__slotName ? window.__slotName(x.k, x.per) : 'dose ' + (x.k + 1) + ' of ' + x.per) + ')' : ''), dose: x.dose + ' · ' + (po ? 'by mouth' : x.route === 'IM' ? 'IM' : 'SubQ'), routeTxt: po ? 'by mouth' : x.route === 'IM' ? 'IM' : 'SubQ', three: threeOf(p, eff(p, key), x.week), draw: draw, hasDraw: !!draw, needle: needle, hasNeedle: !!needle, site: x.site,
+          var TD = todOf(p, x);
+          list.push({ ord: TD.ord, color: COLORS[p.color], name: p.name + (x.per > 1 ? ' (' + (window.__slotName ? window.__slotName(x.k, x.per) : 'dose ' + (x.k + 1) + ' of ' + x.per) + ')' : '') + (TD.label ? ' · ' + TD.label : ''), dose: x.dose + ' · ' + (po ? 'by mouth' : x.route === 'IM' ? 'IM' : 'SubQ'), routeTxt: po ? 'by mouth' : x.route === 'IM' ? 'IM' : 'SubQ', three: threeOf(p, eff(p, key), x.week), draw: draw, hasDraw: !!draw, needle: needle, hasNeedle: !!needle, site: x.site,
             siteLine: (po ? '' : x.site + ' · ') + wkT, isInj: !po,
             siteNote: note, hasSiteNote: !!note, howLabel: hOpen ? 'Hide steps' : (po ? 'How to take it' : 'How to inject'), howOpen: hOpen,
             howSteps: extra.concat(steps).map(function (st, si) { return { n: String(si + 1), text: st }; }),
@@ -2829,7 +2855,7 @@ class Component extends window.DCLogic {
             canMark: key <= todayKey || isDone, upcoming: !(key <= todayKey || isDone) });
         });
       });
-      return list;
+      return list.map(function (e, ix) { e._ix = ix; return e; }).sort(function (a, b) { return a.ord - b.ord || a._ix - b._ix; });
     };
     // calendar grid
     var view = s.calView === undefined ? null : s.calView;
@@ -3245,13 +3271,13 @@ class Component extends window.DCLogic {
         newCourse: function () {
           if (nAct >= MAXP) { self.setState({ cuMsg: 'You already have ' + MAXP + ' active plans. Stop or delete one first.' }); return; }
           var e9 = eff(p, p.stop || todayKey);
-          self.setState({ tab: 'prof', ptab: 'plans', planPage: null, chg: null, cu: null, sup: null, stopF: null, formAdv: true, form: { syringe: syrType(p), drawNeedle: p.drawNeedle || '', injectNeedle: p.injectNeedle || '', route: p.route || 'SC', name: p.name, dose: e9.dose, unit: e9.unit, vial: e9.vial || '', water: e9.water || '', titrate: false, freq: e9.freq, n: String(e9.n || 2), perDay: p.perDay || 1, cycleOn: String(p.cycleOn || ''), cycleOff: String(p.cycleOff || ''), offAfter: String(p.offAfter || ''), maxOn: String(p.maxOn || ''), days: (e9.days || []).slice(), start: (function () { var rc = cycleOf(p).recEnd; if (rc) { var nk = keyOf(cyAdd(rc, 1)); return nk > todayKey ? nk : todayKey; } return todayKey; })(), weeks: String(p.weeks || 8), sites: (p.sites || []).slice(), phases: (p.phases || []).map(function (q) { return { name: q.name, weeks: String(q.weeks), dose: String(q.dose), freq: q.freq, n: String(q.n || 2) }; }) }, formError: '' });
+          self.setState({ tab: 'prof', ptab: 'plans', planPage: null, chg: null, cu: null, sup: null, stopF: null, formAdv: true, form: { syringe: syrType(p), drawNeedle: p.drawNeedle || '', injectNeedle: p.injectNeedle || '', route: p.route || 'SC', name: p.name, dose: e9.dose, unit: e9.unit, vial: e9.vial || '', water: e9.water || '', titrate: false, freq: e9.freq, n: String(e9.n || 2), perDay: p.perDay || 1, tod: p.tod || '', todTime: p.todTime || '', cycleOn: String(p.cycleOn || ''), cycleOff: String(p.cycleOff || ''), offAfter: String(p.offAfter || ''), maxOn: String(p.maxOn || ''), days: (e9.days || []).slice(), start: (function () { var rc = cycleOf(p).recEnd; if (rc) { var nk = keyOf(cyAdd(rc, 1)); return nk > todayKey ? nk : todayKey; } return todayKey; })(), weeks: String(p.weeks || 8), sites: (p.sites || []).slice(), phases: (p.phases || []).map(function (q) { return { name: q.name, weeks: String(q.weeks), dose: String(q.dose), freq: q.freq, n: String(q.n || 2) }; }) }, formError: '' });
           setTimeout(function () { try { document.getElementById('mainScroll').scrollTop = 0; } catch (e) {} }, 0);
         }, hasSy: nd1 ? false : (isIM ? ml0 > 0 : u0 > 0), sy: syrFor(syrType(p), u0, ml0),
         open: plans.length <= 2 || s.openPlan === p.id, shut: !(plans.length <= 2 || s.openPlan === p.id), canFold: plans.length > 2, foldLabel: s.openPlan === p.id ? 'Hide details' : 'Details', toggleOpen: function () { self.setState({ openPlan: s.openPlan === p.id ? null : p.id }); },
-        brief: (e.titrate && stepsFor(p.name) ? doseLabel(p, e, wkNow) : fmtD(e)) + ' · ' + freqLabel(p) + ' · ' + weekNowText(p),
+        brief: (e.titrate && stepsFor(p.name) ? doseLabel(p, e, wkNow) : fmtD(e)) + ' · ' + freqLabel(p) + ((p.perDay || 1) === 1 && todOf(p, { per: 1 }).label ? ' · ' + todOf(p, { per: 1 }).label : '') + ' · ' + weekNowText(p),
         routeWarn: (function () { var nm = p.name || '', rt = p.route || 'SC'; if (/\(IM\)|\bIM\b|intramuscular/i.test(nm) && rt !== 'IM') return 'The name says IM, but this plan is set to ' + (rt === 'PO' ? 'by mouth' : 'SubQ') + '. Check the route under Edit, then Edit plan details.'; if (/\(SC\)|\bSubQ\b|\bSC\b|subcutaneous/i.test(nm) && rt !== 'SC') return 'The name says SubQ, but this plan is set to ' + (rt === 'IM' ? 'IM' : 'by mouth') + '. Check the route under Edit, then Edit plan details.'; return ''; })(),
-        three: threeOf(p, e, wkNow), lineShort: threeText(threeOf(p, e, wkNow)) + ' · ' + freqLabel(p), pid: p.id, warnOn: SP.hasWarn,
+        three: threeOf(p, e, wkNow), lineShort: threeText(threeOf(p, e, wkNow)) + ' · ' + freqLabel(p) + ((p.perDay || 1) === 1 && todOf(p, { per: 1 }).label ? ' · ' + todOf(p, { per: 1 }).label : ''), pid: p.id, warnOn: SP.hasWarn,
         isPage: s.planPage === p.id, editOpen: !!s.editMenu, editLabel: s.editMenu ? 'Close menu \u25B4' : 'Edit \u25BE', toggleEdit: function () { self.setState({ editMenu: !self.state.editMenu }); },
         nextChg: (function () {
           var nx = (p.changes || []).filter(function (c) { return c.from > todayKey; }).sort(function (a, b) { return a.from < b.from ? -1 : 1; })[0];
@@ -3263,13 +3289,13 @@ class Component extends window.DCLogic {
         openSup: function () { self.setState({ sup: { id: p.id, count: (p.count === undefined || p.count === null) ? '' : p.count, countDate: p.countDate || todayKey, lead: p.lead || '', vials: p.vials || '', mixDate: p.mixDate || '', bud: p.bud || '', lot: p.lot || '', vendor: p.vendor || '', storage: p.storage || '', report: p.report || '', halfLife: p.halfLife || '', restDays: p.restDays || '' }, supError: '', cu: null, chg: null, form: null }); },
         concLine: nd1 ? '' : c0 ? 'Concentration: ' + (Math.round(c0 * 1000) / 1000) + ' mg/mL' + (c0 < 50 ? ' (' + Math.round(c0 * 1000) + ' mcg/mL)' : '') + ' from ' + e.vial + ' mg + ' + e.water + ' mL' : 'Concentration: not set (add vial size and water)',
         drawLine: nd1 ? '' : (isIM ? (ml0 ? 'Week ' + wkNow + ' dose ' + doseLabel(p, e, wkNow) + ' = ' + (Math.round(ml0 * 100) / 100) + ' mL on the ' + SYR_LABEL[syrType(p)] : '') : (u0 ? 'Week ' + wkNow + ' dose ' + doseLabel(p, e, wkNow) + ' = ' + r1(u0) + ' units on the syringe' + (u0 > 100 ? ' — over 100 units, more than a 1 mL insulin syringe holds' : '') : '')) + vialLine,
-        summary: 'Route: ' + (po1 ? 'By mouth' : p.route === 'IM' ? 'Intramuscular (IM)' : 'Subcutaneous (SubQ)') + (po1 ? '' : '\n' + (nd1 ? 'Device: ' : 'Syringe: ') + needleText(p)) + '\nDose now: ' + (e.titrate && stepsFor(p.name) ? doseLabel(p, e, wkNow) + ' (FDA label step-up)' : fmtD(e)) + '\nSchedule: ' + freqLabel(p) + '\nStart: ' + (sd0 ? fmtLong(sd0) : '—') + ' · ' + totalWeeks(p) + ' week' + (totalWeeks(p) > 1 ? 's' : '') + ' · ' + weekNowText(p) + (po1 ? '' : '\nSites: ' + (p.sites.map(canon).join(' → ') || '—')) + ((p.changes || []).length ? '\nChanges: ' + p.changes.length : ''),
+        summary: 'Route: ' + (po1 ? 'By mouth' : p.route === 'IM' ? 'Intramuscular (IM)' : 'Subcutaneous (SubQ)') + (po1 ? '' : '\n' + (nd1 ? 'Device: ' : 'Syringe: ') + needleText(p)) + '\nDose now: ' + (e.titrate && stepsFor(p.name) ? doseLabel(p, e, wkNow) + ' (FDA label step-up)' : fmtD(e)) + '\nSchedule: ' + freqLabel(p) + ((p.perDay || 1) === 1 ? '\nDesired time: ' + (todOf(p, { per: 1 }).label || 'Any time') : '') + '\nStart: ' + (sd0 ? fmtLong(sd0) : '—') + ' · ' + totalWeeks(p) + ' week' + (totalWeeks(p) > 1 ? 's' : '') + ' · ' + weekNowText(p) + (po1 ? '' : '\nSites: ' + (p.sites.map(canon).join(' → ') || '—')) + ((p.changes || []).length ? '\nChanges: ' + p.changes.length : ''),
         view: function () { self.setState({ tab: 'cal', calView: p.id }); },
         hasPast: p.start < todayKey,
         supHere: !!(s.sup && s.sup.id === p.id) || !!(s.cu && s.cu.id === p.id) || !!(s.chg && s.chg.id === p.id), formHere: !!(s.form && s.form.id === p.id),
         catchUp: function () { var y = new Date(today); y.setDate(y.getDate() - 1); var yk = keyOf(y); self.setState({ cu: { id: p.id, to: yk < p.start ? p.start : yk }, cuError: '', cuMsg: '', chg: null, form: null }); },
         change: function () { self.setState({ cu: null, chg: { id: p.id, from: todayKey, dose: e.titrate && stepsFor(p.name) ? '' : e.dose, unit: e.unit, vial: e.vial || '', water: e.water || '', titrated: !!(e.titrate && stepsFor(p.name)), stopTit: false, freq: e.freq, n: String(e.n || 2), days: (e.days || []).slice(), strandAsk: 0 }, chgError: '', form: null }); },
-        edit: function () { self.setState({ form: { phases: (p.phases || []).map(function (q) { return { name: q.name, weeks: String(q.weeks), dose: String(q.dose), freq: q.freq, n: String(q.n || 2) }; }), syringe: syrType(p), drawNeedle: p.drawNeedle || '', injectNeedle: p.injectNeedle || '', route: p.route || 'SC', name: p.name, dose: p.dose, unit: p.unit, vial: p.vial || '', water: p.water || '', titrate: p.titrate, freq: p.freq, n: String(p.n || 2), perDay: p.perDay || 1, cycleOn: String(p.cycleOn || ''), cycleOff: String(p.cycleOff || ''), offAfter: String(p.offAfter || ''), maxOn: String(p.maxOn || ''), days: (p.days || []).slice(), start: p.start, weeks: String(p.weeks), sites: (p.sites || []).map(canon).filter(function (x) { return siteList(p.route || 'SC', p.name).indexOf(x) > -1; }), id: p.id }, formError: '', chg: null, cu: null, sup: null }); },
+        edit: function () { self.setState({ form: { phases: (p.phases || []).map(function (q) { return { name: q.name, weeks: String(q.weeks), dose: String(q.dose), freq: q.freq, n: String(q.n || 2) }; }), syringe: syrType(p), drawNeedle: p.drawNeedle || '', injectNeedle: p.injectNeedle || '', route: p.route || 'SC', name: p.name, dose: p.dose, unit: p.unit, vial: p.vial || '', water: p.water || '', titrate: p.titrate, freq: p.freq, n: String(p.n || 2), perDay: p.perDay || 1, tod: p.tod || '', todTime: p.todTime || '', cycleOn: String(p.cycleOn || ''), cycleOff: String(p.cycleOff || ''), offAfter: String(p.offAfter || ''), maxOn: String(p.maxOn || ''), days: (p.days || []).slice(), start: p.start, weeks: String(p.weeks), sites: (p.sites || []).map(canon).filter(function (x) { return siteList(p.route || 'SC', p.name).indexOf(x) > -1; }), id: p.id }, formError: '', chg: null, cu: null, sup: null }); },
         delLabel: armLbl('plan' + p.id, 'Delete'), delBg: armBg('plan' + p.id), delFg: armFg('plan' + p.id),
         remove: twoTap('plan' + p.id, function () { var keep = plans.filter(function (x) { return x.id !== p.id; }), live = {}; keep.forEach(function (x) { live[x.id] = 1; }); var nd = {}; for (var dk in done) { if (live[parseInt(dk.split('|')[0], 10)]) nd[dk] = done[dk]; } var ns0 = {}; for (var sk0 in sov) { if (live[parseInt(sk0.split('|')[0], 10)]) ns0[sk0] = sov[sk0]; } self.setState({ plans: keep, done: nd, sov: ns0, calView: null, cu: null, chg: null, sup: null }); }) };
     });
@@ -3475,6 +3501,9 @@ class Component extends window.DCLogic {
         P0.forEach(function (q, qi) { var w = parseInt(q.weeks, 10) || 0; if (sd && w) { var a = addDays(sd, acc * 7), b = addDays(sd, (acc + w) * 7 - 1); parts.push((q.name || 'Phase ' + (qi + 1)) + ': ' + fmtShort(a) + ' – ' + fmtShort(b)); } acc += w; });
         return 'With phases, the dose, how often and length above are replaced by the phases. Total length: ' + W + ' week' + (W === 1 ? '' : 's') + '.' + (parts.length ? '\n' + parts.join('\n') : '');
       })(),
+      showTod: (f.perDay || 1) === 1, showTodMulti: (f.perDay || 1) > 1,
+      todChips: [['am', 'Morning'], ['mid', 'Midday'], ['pm', 'Evening'], ['bed', 'Bedtime'], ['', 'Any time']].map(function (o) { var on = (f.tod || '') === o[0]; var c = chip(on); return { label: o[1], on: on, bg: c.bg, fg: c.fg, pick: function () { setF({ tod: o[0] }); } }; }),
+      onFTime: function (e) { setF({ todTime: e.target.value }); },
       perDayChips: [1, 2, 3].map(function (n) { var c = chip((f.perDay || 1) === n); return { label: n === 1 ? 'Once a day' : n === 2 ? '2x a day (AM + PM)' : '3x a day', bg: c.bg, fg: c.fg, pick: function () { setF({ perDay: n }); } }; }),
       dayChips: WD.map(function (w, i) { var on = f.days.indexOf(i) > -1, c = chip(on); return { label: w.slice(0, 2), bg: c.bg, fg: c.fg, pick: function () { setF({ days: on ? f.days.filter(function (x) { return x !== i; }) : f.days.concat([i]).sort() }); } }; }),
       routeChips: [['SC', 'SubQ injection'], ['IM', 'IM injection'], ['PO', 'By mouth']].map(function (x) { var c = chip((f.route || 'SC') === x[0]); return { label: x[1], bg: c.bg, fg: c.fg, pick: function () { if ((f.route || 'SC') === x[0]) return; if (x[0] === 'PO') setF({ route: 'PO', sites: [], syringe: 'none', injectNeedle: '', drawNeedle: '', unit: (f.unit === 'units' || f.unit === 'mL') ? 'mg' : f.unit }); else setF({ route: x[0], sites: [], syringe: x[0] === 'IM' ? 'ml3' : (['insulin', 'tb1', 'ml1', 'pen'].indexOf(f.syringe) > -1 ? f.syringe : f.syringe === 'ml3' ? 'ml1' : 'insulin'), injectNeedle: '', unit: f.unit === 'IU' ? 'mg' : f.unit }); } }; }),
@@ -3522,7 +3551,7 @@ class Component extends window.DCLogic {
         else if (!fPO && !f.sites.length) err = 'Pick at least one injection site.';
         else if (!fPO && f.sites.some(function (x) { return siteList(f.route || 'SC', f.name).indexOf(x) === -1; })) err = 'Some sites do not match the ' + ((f.route === 'IM') ? 'IM' : 'SubQ') + ' route. Re-pick the sites.';
         if (err) { self.setState({ formError: err }); return; }
-        var rec = { syringe: fPO ? 'none' : (f.syringe || (f.route === 'IM' ? 'ml3' : 'insulin')), drawNeedle: (fPO || fPen || (f.syringe || 'insulin') === 'insulin' || f.syringe === 'tb1') ? '' : (f.drawNeedle || ''), injectNeedle: (fPO || fPen) ? '' : (f.injectNeedle || ''), route: f.route || 'SC', name: f.name.trim(), dose: f.dose, unit: f.unit, vial: (fPO || fPen) ? '' : f.vial, water: (fPO || fPen) ? '' : f.water, titrate: !!(f.titrate && canTitrate), freq: f.freq, n: N || 2, perDay: f.perDay || 1, cycleOn: on, cycleOff: off, offAfter: parseInt(f.offAfter, 10) > 0 ? parseInt(f.offAfter, 10) : 0, maxOn: parseInt(f.maxOn, 10) > 0 ? parseInt(f.maxOn, 10) : 0, days: f.days, start: f.start, weeks: parseInt(f.weeks, 10) || 1, sites: fPO ? [] : f.sites };
+        var rec = { syringe: fPO ? 'none' : (f.syringe || (f.route === 'IM' ? 'ml3' : 'insulin')), drawNeedle: (fPO || fPen || (f.syringe || 'insulin') === 'insulin' || f.syringe === 'tb1') ? '' : (f.drawNeedle || ''), injectNeedle: (fPO || fPen) ? '' : (f.injectNeedle || ''), route: f.route || 'SC', name: f.name.trim(), dose: f.dose, unit: f.unit, vial: (fPO || fPen) ? '' : f.vial, water: (fPO || fPen) ? '' : f.water, titrate: !!(f.titrate && canTitrate), freq: f.freq, n: N || 2, perDay: f.perDay || 1, tod: (f.perDay || 1) === 1 ? (f.tod || '') : '', todTime: (f.perDay || 1) === 1 ? (f.todTime || '') : '', cycleOn: on, cycleOff: off, offAfter: parseInt(f.offAfter, 10) > 0 ? parseInt(f.offAfter, 10) : 0, maxOn: parseInt(f.maxOn, 10) > 0 ? parseInt(f.maxOn, 10) : 0, days: f.days, start: f.start, weeks: parseInt(f.weeks, 10) || 1, sites: fPO ? [] : f.sites };
         rec.phases = PH.map(function (q, qi) { return { name: String(q.name || '').trim() || ('Phase ' + (qi + 1)), weeks: parseInt(q.weeks, 10), dose: String(q.dose), freq: q.freq, n: parseInt(q.n, 10) || 2 }; });
         var phCh = [], accW = 0, sdP = parseKey(f.start);
         rec.phases.forEach(function (q, qi) { if (qi > 0 && sdP) phCh.push({ from: keyOf(addDays(sdP, accW * 7)), dose: q.dose, unit: f.unit, freq: q.freq, n: q.n, days: [], ph: q.name, titrate: false }); accW += q.weeks; });
